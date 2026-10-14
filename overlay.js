@@ -12,6 +12,8 @@ var Overlay = (function () {
   var drag = null;
   var onSelect = function () {};
   var images = {};
+  var HANDLE_R = 11;     // 삭제 버튼 반지름 (그리는 크기)
+  var HANDLE_HIT_R = 18; // 손가락으로 누르기 쉽게 판정 영역은 더 넓게
 
   function loadImage(src) {
     if (images[src]) return images[src];
@@ -87,6 +89,13 @@ var Overlay = (function () {
       if (p === selected) {
         ctx.strokeStyle = "#3d5a4c"; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
         ctx.strokeRect(-d.w / 2 - 3, -d.h / 2 - 3, d.w + 6, d.h + 6);
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#c0392b";
+        ctx.beginPath(); ctx.arc(d.w / 2 + 3, -d.h / 2 - 3, HANDLE_R, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+        var cx = d.w / 2 + 3, cy = -d.h / 2 - 3, k = HANDLE_R * 0.4;
+        ctx.beginPath(); ctx.moveTo(cx - k, cy - k); ctx.lineTo(cx + k, cy + k);
+        ctx.moveTo(cx + k, cy - k); ctx.lineTo(cx - k, cy + k); ctx.stroke();
       }
       ctx.restore();
     });
@@ -104,8 +113,19 @@ var Overlay = (function () {
     return Math.abs(lx) <= d.w / 2 && Math.abs(ly) <= d.h / 2;
   }
 
+  // 선택된 가구의 점선 오른쪽 위 모서리에 있는 삭제 버튼을 눌렀는지 (회전 반영)
+  function hitDeleteHandle(pt) {
+    if (!selected) return false;
+    var d = dims(selected), a = selected.rot * Math.PI / 180;
+    var lx = d.w / 2 + 3, ly = -d.h / 2 - 3;
+    var hx = selected.x + lx * Math.cos(a) - ly * Math.sin(a);
+    var hy = selected.y + lx * Math.sin(a) + ly * Math.cos(a);
+    return Math.hypot(pt.x - hx, pt.y - hy) <= HANDLE_HIT_R;
+  }
+
   function onDown(e) {
     var pt = pointer(e), found = null;
+    if (hitDeleteHandle(pt)) { removeSelected(); return; }
     for (var i = placed.length - 1; i >= 0; i--) { if (hit(placed[i], pt)) { found = placed[i]; break; } }
     if (found) {
       placed.splice(placed.indexOf(found), 1); placed.push(found); // 눌러서 맨 앞으로
@@ -130,6 +150,11 @@ var Overlay = (function () {
     placed.splice(placed.indexOf(selected), 1);
     select(null);
   }
+  function count() { return placed.length; }
+  function handlePos() { // 스모크 테스트용: 선택된 가구의 삭제 버튼 좌표
+    var d = dims(selected), a = selected.rot * Math.PI / 180, lx = d.w / 2 + 3, ly = -d.h / 2 - 3;
+    return { x: selected.x + lx * Math.cos(a) - ly * Math.sin(a), y: selected.y + lx * Math.sin(a) + ly * Math.cos(a), W: W, H: H };
+  }
   function clear() { placed = []; select(null); }
 
   function toBlob(cb) {
@@ -139,5 +164,5 @@ var Overlay = (function () {
 
   return { init: init, resize: resize, setBackground: setBackground, addItem: addItem,
            setScale: setScale, setRotation: setRotation, removeSelected: removeSelected,
-           clear: clear, toBlob: toBlob };
+           clear: clear, toBlob: toBlob, count: count, handlePos: handlePos };
 })();
