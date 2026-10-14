@@ -1,26 +1,457 @@
 [
-  { "id": "shelf-slim", "name": "슬림 3단 선반", "category": "수납", "price": 39000,
-    "size": { "w": 60, "d": 30, "h": 110 }, "styles": ["미니멀", "모던"], "noDrill": true,
-    "priority": 1, "image": "assets/furniture/shelf-slim.png" },
-  { "id": "shelf-wood", "name": "원목 4단 선반", "category": "수납", "price": 69000,
-    "size": { "w": 70, "d": 32, "h": 140 }, "styles": ["우드", "따뜻한"], "noDrill": true,
-    "priority": 1, "image": "assets/furniture/shelf-wood.png" },
-  { "id": "lamp-floor", "name": "스탠드 조명", "category": "조명", "price": 35000,
-    "size": { "w": 30, "d": 30, "h": 150 }, "styles": ["미니멀", "모던", "따뜻한"], "noDrill": true,
-    "priority": 2, "image": "assets/furniture/lamp-floor.png" },
-  { "id": "lamp-desk", "name": "데스크 램프", "category": "조명", "price": 18000,
-    "size": { "w": 20, "d": 20, "h": 40 }, "styles": ["미니멀", "모던"], "noDrill": true,
-    "priority": 2, "alternativeTo": "lamp-floor", "image": "assets/furniture/lamp-desk.png" },
-  { "id": "rug-gray", "name": "그레이 러그 (150x100)", "category": "러그", "price": 29000,
-    "size": { "w": 150, "d": 100, "h": 1 }, "styles": ["미니멀", "모던"], "noDrill": true,
-    "priority": 3, "image": "assets/furniture/rug-gray.png" },
-  { "id": "rug-beige", "name": "베이지 러그 (150x100)", "category": "러그", "price": 32000,
-    "size": { "w": 150, "d": 100, "h": 1 }, "styles": ["우드", "따뜻한"], "noDrill": true,
-    "priority": 3, "image": "assets/furniture/rug-beige.png" },
-  { "id": "chair-basic", "name": "기본 의자", "category": "의자", "price": 45000,
-    "size": { "w": 45, "d": 45, "h": 85 }, "styles": ["미니멀", "모던", "우드"], "noDrill": true,
-    "priority": 2, "image": "assets/furniture/chair-basic.png" },
-  { "id": "plant-small", "name": "미니 화분", "category": "소품", "price": 12000,
-    "size": { "w": 20, "d": 20, "h": 40 }, "styles": ["미니멀", "우드", "따뜻한"], "noDrill": true,
-    "priority": 3, "image": "assets/furniture/plant-small.png" }
+  {
+    "id": "shelf-slim",
+    "name": "슬림 3단 선반",
+    "category": "수납",
+    "price": 39000,
+    "size": {
+      "w": 60,
+      "d": 30,
+      "h": 110
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "모던"
+    ],
+    "noDrill": true,
+    "priority": 1,
+    "alternativeTo": "shelf-wood",
+    "image": "assets/furniture/shelf-slim.svg"
+  },
+  {
+    "id": "shelf-wood",
+    "name": "원목 4단 선반",
+    "category": "수납",
+    "price": 69000,
+    "size": {
+      "w": 70,
+      "d": 32,
+      "h": 140
+    },
+    "view": "front",
+    "styles": [
+      "우드",
+      "따뜻한"
+    ],
+    "noDrill": true,
+    "priority": 1,
+    "image": "assets/furniture/shelf-wood.svg"
+  },
+  {
+    "id": "hanger-rack",
+    "name": "스탠드 행거",
+    "category": "수납",
+    "price": 25000,
+    "size": {
+      "w": 80,
+      "d": 40,
+      "h": 160
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "모던",
+      "우드"
+    ],
+    "noDrill": true,
+    "priority": 1,
+    "image": "assets/furniture/hanger-rack.svg"
+  },
+  {
+    "id": "storage-box",
+    "name": "접이식 정리함",
+    "category": "수납",
+    "price": 15000,
+    "size": {
+      "w": 40,
+      "d": 30,
+      "h": 30
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "우드",
+      "따뜻한"
+    ],
+    "noDrill": true,
+    "priority": 2,
+    "alternativeTo": "drawer-cart",
+    "image": "assets/furniture/storage-box.svg"
+  },
+  {
+    "id": "drawer-cart",
+    "name": "3단 서랍 카트",
+    "category": "수납",
+    "price": 32000,
+    "size": {
+      "w": 40,
+      "d": 30,
+      "h": 80
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "따뜻한"
+    ],
+    "noDrill": true,
+    "priority": 2,
+    "alternativeTo": "shelf-slim",
+    "image": "assets/furniture/drawer-cart.svg"
+  },
+  {
+    "id": "lamp-floor",
+    "name": "스탠드 조명",
+    "category": "조명",
+    "price": 35000,
+    "size": {
+      "w": 30,
+      "d": 30,
+      "h": 150
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "모던",
+      "따뜻한"
+    ],
+    "noDrill": true,
+    "priority": 2,
+    "image": "assets/furniture/lamp-floor.svg"
+  },
+  {
+    "id": "lamp-desk",
+    "name": "데스크 램프",
+    "category": "조명",
+    "price": 18000,
+    "size": {
+      "w": 20,
+      "d": 20,
+      "h": 40
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "모던"
+    ],
+    "noDrill": true,
+    "priority": 2,
+    "alternativeTo": "lamp-floor",
+    "image": "assets/furniture/lamp-desk.svg"
+  },
+  {
+    "id": "lamp-mood",
+    "name": "무드등",
+    "category": "조명",
+    "price": 12000,
+    "size": {
+      "w": 15,
+      "d": 15,
+      "h": 25
+    },
+    "view": "front",
+    "styles": [
+      "따뜻한",
+      "우드"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "alternativeTo": "lamp-desk",
+    "image": "assets/furniture/lamp-mood.svg"
+  },
+  {
+    "id": "rug-gray",
+    "name": "그레이 러그 (150x100)",
+    "category": "러그",
+    "price": 29000,
+    "size": {
+      "w": 150,
+      "d": 100,
+      "h": 1
+    },
+    "view": "top",
+    "styles": [
+      "미니멀",
+      "모던"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "image": "assets/furniture/rug-gray.svg"
+  },
+  {
+    "id": "rug-beige",
+    "name": "베이지 러그 (150x100)",
+    "category": "러그",
+    "price": 32000,
+    "size": {
+      "w": 150,
+      "d": 100,
+      "h": 1
+    },
+    "view": "top",
+    "styles": [
+      "우드",
+      "따뜻한"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "image": "assets/furniture/rug-beige.svg"
+  },
+  {
+    "id": "curtain-linen",
+    "name": "린넨 커튼 + 압축봉",
+    "category": "커튼",
+    "price": 25000,
+    "size": {
+      "w": 140,
+      "d": 2,
+      "h": 220
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "우드",
+      "따뜻한"
+    ],
+    "noDrill": true,
+    "priority": 2,
+    "image": "assets/furniture/curtain-linen.svg"
+  },
+  {
+    "id": "bedding-set",
+    "name": "침구 세트 (싱글)",
+    "category": "침구",
+    "price": 45000,
+    "size": {
+      "w": 110,
+      "d": 200,
+      "h": 15
+    },
+    "view": "top",
+    "styles": [
+      "미니멀",
+      "모던"
+    ],
+    "noDrill": true,
+    "priority": 1,
+    "image": "assets/furniture/bedding-set.svg"
+  },
+  {
+    "id": "bedding-light",
+    "name": "이불 커버 (단품)",
+    "category": "침구",
+    "price": 28000,
+    "size": {
+      "w": 110,
+      "d": 200,
+      "h": 10
+    },
+    "view": "top",
+    "styles": [
+      "우드",
+      "따뜻한",
+      "미니멀"
+    ],
+    "noDrill": true,
+    "priority": 1,
+    "alternativeTo": "bedding-set",
+    "image": "assets/furniture/bedding-light.svg"
+  },
+  {
+    "id": "chair-basic",
+    "name": "기본 의자",
+    "category": "의자",
+    "price": 45000,
+    "size": {
+      "w": 45,
+      "d": 45,
+      "h": 85
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "모던",
+      "우드"
+    ],
+    "noDrill": true,
+    "priority": 2,
+    "image": "assets/furniture/chair-basic.svg"
+  },
+  {
+    "id": "desk-small",
+    "name": "접이식 책상",
+    "category": "책상",
+    "price": 55000,
+    "size": {
+      "w": 80,
+      "d": 50,
+      "h": 72
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "모던",
+      "우드"
+    ],
+    "noDrill": true,
+    "priority": 2,
+    "image": "assets/furniture/desk-small.svg"
+  },
+  {
+    "id": "mirror-stand",
+    "name": "스탠드 전신 거울",
+    "category": "거울",
+    "price": 29000,
+    "size": {
+      "w": 45,
+      "d": 35,
+      "h": 150
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "모던"
+    ],
+    "noDrill": true,
+    "priority": 2,
+    "image": "assets/furniture/mirror-stand.svg"
+  },
+  {
+    "id": "plant-small",
+    "name": "미니 화분",
+    "category": "소품",
+    "price": 12000,
+    "size": {
+      "w": 20,
+      "d": 20,
+      "h": 40
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "우드",
+      "따뜻한"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "alternativeTo": "plant-large",
+    "image": "assets/furniture/plant-small.svg"
+  },
+  {
+    "id": "plant-large",
+    "name": "대형 화분",
+    "category": "소품",
+    "price": 35000,
+    "size": {
+      "w": 35,
+      "d": 35,
+      "h": 120
+    },
+    "view": "front",
+    "styles": [
+      "우드",
+      "따뜻한"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "image": "assets/furniture/plant-large.svg"
+  },
+  {
+    "id": "poster-frame",
+    "name": "접착식 액자",
+    "category": "벽장식",
+    "price": 15000,
+    "size": {
+      "w": 40,
+      "d": 2,
+      "h": 50
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "모던",
+      "따뜻한"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "image": "assets/furniture/poster-frame.svg"
+  },
+  {
+    "id": "wall-sticker",
+    "name": "벽 스티커",
+    "category": "벽장식",
+    "price": 10000,
+    "size": {
+      "w": 70,
+      "d": 1,
+      "h": 50
+    },
+    "view": "front",
+    "styles": [
+      "따뜻한",
+      "우드"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "alternativeTo": "poster-frame",
+    "image": "assets/furniture/wall-sticker.svg"
+  },
+  {
+    "id": "side-table",
+    "name": "사이드 테이블",
+    "category": "테이블",
+    "price": 25000,
+    "size": {
+      "w": 40,
+      "d": 40,
+      "h": 45
+    },
+    "view": "front",
+    "styles": [
+      "미니멀",
+      "모던",
+      "우드"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "image": "assets/furniture/side-table.svg"
+  },
+  {
+    "id": "sofa-bean",
+    "name": "빈백 소파",
+    "category": "의자",
+    "price": 59000,
+    "size": {
+      "w": 80,
+      "d": 80,
+      "h": 70
+    },
+    "view": "front",
+    "styles": [
+      "따뜻한",
+      "모던"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "image": "assets/furniture/sofa-bean.svg"
+  },
+  {
+    "id": "cushion-set",
+    "name": "쿠션 2개 세트",
+    "category": "소품",
+    "price": 14000,
+    "size": {
+      "w": 45,
+      "d": 15,
+      "h": 45
+    },
+    "view": "front",
+    "styles": [
+      "따뜻한",
+      "미니멀"
+    ],
+    "noDrill": true,
+    "priority": 3,
+    "image": "assets/furniture/cushion-set.svg"
+  }
 ]
