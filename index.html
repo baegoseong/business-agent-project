@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자취방 꾸미기 에이전트</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1>자취방 꾸미기 에이전트</h1>
+  <p class="sub">예산과 취향을 알려 주면 필요한 가구를 골라 주고, 내 방 사진 위에 올려 볼 수 있어요.</p>
+  <ol class="steps" id="steps">
+    <li>방 정보</li><li>취향</li><li>추천</li><li>배치</li>
+  </ol>
+</header>
+
+<main>
+  <p id="loadError" class="error" hidden>가구 데이터를 불러오지 못했어요. 파일로 직접 열지 말고 웹 서버(또는 배포 주소)로 열어 주세요.</p>
+
+  <!-- 1. 방 정보 -->
+  <section class="step" id="step1">
+    <h2>1. 방 정보</h2>
+
+    <label class="field-label">내 방 사진 <span class="hint">(선택 · 4단계에서 가구를 올려 볼 때 써요)</span></label>
+    <label class="photo-drop" for="photoInput">
+      <img id="photoPreview" alt="" hidden>
+      <span id="photoText">사진 찍기 / 앨범에서 고르기</span>
+    </label>
+    <input type="file" id="photoInput" accept="image/*" hidden>
+
+    <label class="field-label" for="budget">인테리어 예산 (원)</label>
+    <input type="number" id="budget" min="0" step="10000" value="150000" inputmode="numeric">
+    <div class="chips" id="budgetChips">
+      <button type="button" data-v="50000">5만</button>
+      <button type="button" data-v="100000">10만</button>
+      <button type="button" data-v="150000">15만</button>
+      <button type="button" data-v="200000">20만</button>
+      <button type="button" data-v="300000">30만</button>
+    </div>
+
+    <label class="field-label">이미 방에 있는 것 <span class="hint">(풀옵션이면 체크해 두세요)</span></label>
+    <div class="checks" id="ownedChecks">
+      <label><input type="checkbox" value="책상" checked> 책상</label>
+      <label><input type="checkbox" value="의자" checked> 의자</label>
+      <label><input type="checkbox" value="침구"> 침구</label>
+      <label><input type="checkbox" value="수납"> 수납 가구</label>
+    </div>
+
+    <div class="actions"><button class="primary" id="to2">다음: 취향 진단</button></div>
+  </section>
+
+  <!-- 2. 취향 -->
+  <section class="step" id="step2" hidden>
+    <h2>2. 취향 진단</h2>
+    <div id="questions"></div>
+    <p id="q-error" class="error" hidden></p>
+    <div class="actions">
+      <button id="back1">이전</button>
+      <button class="primary" id="to3">추천 받기</button>
+    </div>
+  </section>
+
+  <!-- 3. 추천 -->
+  <section class="step" id="step3" hidden>
+    <h2>3. 추천 결과</h2>
+    <div id="result"></div>
+    <div class="actions">
+      <button id="back2">취향 다시 고르기</button>
+      <button class="primary" id="to4">내 방에 올려 보기</button>
+    </div>
+  </section>
+
+  <!-- 4. 배치 -->
+  <section class="step" id="step4" hidden>
+    <h2>4. 내 방에 올려 보기</h2>
+    <p class="hint">아래 가구를 눌러 추가하고, 끌어서 옮기세요. 가구를 선택하면 크기와 회전을 조절할 수 있어요.</p>
+    <div class="palette" id="palette"></div>
+    <div class="canvas-wrap"><canvas id="room"></canvas></div>
+    <div class="controls" id="controls" hidden>
+      <label>크기 <input type="range" id="ctlScale" min="0.3" max="2.5" step="0.05"></label>
+      <label>회전 <input type="range" id="ctlRot" min="-180" max="180" step="1"></label>
+      <button id="ctlDelete">삭제</button>
+    </div>
+    <p class="hint">크기는 사진 속 방 너비를 약 3.2m로 가정해 맞춘 값이에요. 원근감은 반영되지 않아요.</p>
+    <div class="actions">
+      <button id="back3">추천으로</button>
+      <button class="primary" id="savePng">이미지로 저장</button>
+    </div>
+  </section>
+</main>
+
+<script src="agent/agent.js"></script>
+<script src="overlay.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
