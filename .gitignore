@@ -1,0 +1,20 @@
+# secrets
+.env
+.env.*
+*.key
+
+# dependencies / build output
+node_modules/
+dist/
+build/
+.cache/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# large or non-code files that must not be committed
+*.mp4
+*.mov
+data/raw/
