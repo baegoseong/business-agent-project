@@ -55,7 +55,9 @@ var Overlay = (function () {
   function dims(p) {
     var it = p.item;
     var w = it.size.w * pxPerCm() * p.scale;
-    var ratio = it.view === "top" ? (it.size.d / it.size.w) * TOP_VIEW_SQUASH : it.size.h / it.size.w;
+    // 실제 상품 사진은 촬영 각도 때문에 치수 비율과 그림 비율이 달라서, 데이터의 사진 비율(aspect)대로 그려 찌그러짐을 막는다
+    // 러그처럼 위에서 찍은 사진(view=top)은 바닥에 깔린 느낌이 나도록 세로를 눌러서 그린다
+    var ratio = it.aspect * (it.view === "top" ? TOP_VIEW_SQUASH : 1);
     return { w: w, h: w * ratio };
   }
 
@@ -85,7 +87,11 @@ var Overlay = (function () {
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rot * Math.PI / 180);
-      if (p.img.complete && p.img.naturalWidth) ctx.drawImage(p.img, -d.w / 2, -d.h / 2, d.w, d.h);
+      // SVG는 브라우저에 따라 naturalWidth가 0으로 나올 수 있어 크기를 직접 지정해 그린다. 로딩 실패(깨진 이미지)면 건너뛴다
+      // 흰 상품이 밝은 배경에 묻히지 않도록 옅은 그림자를 준다
+      ctx.shadowColor = "rgba(0,0,0,0.28)"; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+      if (p.img.complete) { try { ctx.drawImage(p.img, -d.w / 2, -d.h / 2, d.w, d.h); } catch (e) { /* 아직 못 읽은 이미지 */ } }
+      ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
       if (p === selected) {
         ctx.strokeStyle = "#3d5a4c"; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
         ctx.strokeRect(-d.w / 2 - 3, -d.h / 2 - 3, d.w + 6, d.h + 6);

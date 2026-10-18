@@ -30,21 +30,22 @@
     <input type="file" id="photoInput" accept="image/*" hidden>
 
     <label class="field-label" for="budget">인테리어 예산 (원)</label>
-    <input type="number" id="budget" min="0" step="10000" value="150000" inputmode="numeric">
+    <input type="number" id="budget" min="0" step="10000" value="300000" inputmode="numeric">
     <div class="chips" id="budgetChips">
-      <button type="button" data-v="50000">5만</button>
       <button type="button" data-v="100000">10만</button>
-      <button type="button" data-v="150000">15만</button>
       <button type="button" data-v="200000">20만</button>
       <button type="button" data-v="300000">30만</button>
+      <button type="button" data-v="500000">50만</button>
+      <button type="button" data-v="1000000">100만</button>
     </div>
 
     <label class="field-label">이미 방에 있는 것 <span class="hint">(풀옵션이면 체크해 두세요)</span></label>
     <div class="checks" id="ownedChecks">
       <label><input type="checkbox" value="책상" checked> 책상</label>
-      <label><input type="checkbox" value="의자" checked> 의자</label>
+      <label><input type="checkbox" value="의자,스툴" checked> 의자</label>
+      <label><input type="checkbox" value="침대 프레임" checked> 침대</label>
       <label><input type="checkbox" value="침구"> 침구</label>
-      <label><input type="checkbox" value="수납"> 수납 가구</label>
+      <label><input type="checkbox" value="선반,수납장"> 수납 가구</label>
     </div>
 
     <div class="actions"><button class="primary" id="to2">다음: 취향 진단</button></div>
@@ -61,14 +62,22 @@
     </div>
   </section>
 
-  <!-- 3. 추천 -->
+  <!-- 3. 추천 상품 고르기 -->
   <section class="step" id="step3" hidden>
-    <h2>3. 추천 결과</h2>
-    <div id="result"></div>
+    <h2>3. 추천 상품 고르기</h2>
+    <div id="diag"></div>
+    <div class="budget-line">
+      <label for="budget3">예산</label>
+      <input type="number" id="budget3" min="0" step="10000" inputmode="numeric"> 원
+      <button type="button" id="autoPick">예산에 맞춰 자동 선택</button>
+    </div>
+    <div id="autoLog"></div>
+    <div id="suggestions"></div>
     <div class="actions">
       <button id="back2">취향 다시 고르기</button>
-      <button class="primary" id="to4">내 방에 올려 보기</button>
+      <button class="primary" id="to4" disabled>담은 상품을 내 방에 올려 보기</button>
     </div>
+    <div class="cart-bar" id="cartBar" role="status"></div>
   </section>
 
   <!-- 4. 배치 -->
@@ -89,6 +98,7 @@
     </div>
   </section>
 </main>
+<footer class="attrib">상품 이미지와 치수: Amazon Berkeley Objects (CC BY 4.0, Amazon.com). 가격은 참고용 추정값입니다.</footer>
 
 <script src="agent/agent.js"></script>
 <script src="overlay.js"></script>
