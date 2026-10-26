@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
 <!-- 파일을 고친 뒤 브라우저가 옛 파일을 쓰지 않도록 주소 끝의 v 값을 바꿔 올린다 -->
-<link rel="stylesheet" href="style.css?v=20261026b">
+<link rel="stylesheet" href="style.css?v=20261027e">
 </head>
 <body>
 <header class="hero">
@@ -49,6 +49,19 @@
     </label>
     <input type="file" id="photoInput" accept="image/*" hidden>
 
+    <label class="field-label" for="roomW">방 크기 <span class="hint">(선택 · 바닥에 놓는 가구가 들어갈지 판단할 때 써요. 대략이어도 괜찮아요)</span></label>
+    <div class="room-size">
+      <input type="number" id="roomW" min="100" max="1000" step="10" inputmode="numeric" placeholder="가로" aria-label="방 가로(cm)">
+      <span>×</span>
+      <input type="number" id="roomD" min="100" max="1000" step="10" inputmode="numeric" placeholder="세로" aria-label="방 세로(cm)">
+      <span>cm</span>
+    </div>
+    <div class="chips" id="roomChips">
+      <button type="button" data-w="250" data-d="350">작은 원룸 2.5×3.5m</button>
+      <button type="button" data-w="300" data-d="400">일반 원룸 3×4m</button>
+      <button type="button" data-w="350" data-d="500">넓은 원룸 3.5×5m</button>
+    </div>
+
     <label class="field-label" for="budget">인테리어 예산 (원)</label>
     <input type="number" id="budget" min="0" step="10000" value="300000" inputmode="numeric">
     <div class="chips" id="budgetChips">
@@ -74,7 +87,17 @@
   <!-- 2. 취향 -->
   <section class="step" id="step2" hidden>
     <h2>2. 취향 진단</h2>
+    <fieldset class="q">
+      <legend>마음에 드는 방 분위기를 골라 주세요 <span class="hint">(1~3개)</span></legend>
+      <div class="mood-grid" id="moodGrid"></div>
+      <p class="hint" id="moodCount" role="status"></p>
+    </fieldset>
     <div id="questions"></div>
+    <div class="q free">
+      <label class="legend-like" for="freeText">카드에 없는 고민이나 원하는 것이 있으면 적어 주세요 <span class="hint">(선택)</span></label>
+      <textarea id="freeText" rows="3" maxlength="300" placeholder="예) 책상 위가 어두워서 공부가 힘들어요. 방이 좁아서 큰 가구는 부담돼요."></textarea>
+      <div id="interpret" class="interpret" aria-live="polite"></div>
+    </div>
     <p id="q-error" class="error" hidden></p>
     <div class="actions">
       <button id="back1">이전</button>
@@ -113,10 +136,10 @@
     </div>
   </section>
 </main>
-<footer class="attrib">상품 이미지와 치수: Amazon Berkeley Objects (CC BY 4.0, Amazon.com). 가격은 참고용 추정값입니다.</footer>
+<footer class="attrib">상품 이미지와 치수: Amazon Berkeley Objects (CC BY 4.0, Amazon.com). 가격은 참고용 추정값입니다. <span id="moodCredits"></span></footer>
 
-<script src="agent/agent.js?v=20261026b"></script>
-<script src="overlay.js?v=20261026b"></script>
-<script src="app.js?v=20261026b"></script>
+<script src="agent/agent.js?v=20261027e"></script>
+<script src="overlay.js?v=20261027e"></script>
+<script src="app.js?v=20261027e"></script>
 </body>
 </html>

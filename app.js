@@ -1,18 +1,11 @@
-// 화면 흐름: 1 방 정보 -> 2 취향 -> 3 추천 상품 고르기(예산 맞추기) -> 4 사진 위 배치
+// 화면 흐름: 1 방 정보 -> 2 취향(방 분위기 고르기, 아쉬운 점, 직접 쓰기) -> 3 추천 상품 고르기(예산·방 크기 맞추기) -> 4 사진 위 배치
 (function () {
   "use strict";
 
+  var MIN_PICKS = 1, MAX_PICKS = 3;
+
+  // 객관식 질문: 취향은 사진으로 고르므로 여기서는 아쉬운 점과 조건만 묻는다
   var QUESTIONS = [
-    { id: "mood", title: "어떤 분위기가 끌려요?", multi: false, options: [
-      { label: "밝고 깔끔한 화이트톤", styles: { "미니멀": 2, "모던": 1 } },
-      { label: "포근하고 따뜻한 느낌", styles: { "따뜻한": 2, "우드": 1 } },
-      { label: "나무 질감의 내추럴함", styles: { "우드": 2, "따뜻한": 1 } },
-      { label: "세련된 도시적 분위기", styles: { "모던": 2, "미니멀": 1 } } ] },
-    { id: "color", title: "좋아하는 색감은요?", multi: false, options: [
-      { label: "화이트 · 그레이", styles: { "미니멀": 1, "모던": 1 } },
-      { label: "베이지 · 브라운", styles: { "따뜻한": 1, "우드": 1 } },
-      { label: "블랙 · 차콤 포인트", styles: { "모던": 2 } },
-      { label: "우드톤 + 초록 식물", styles: { "우드": 2 } } ] },
     { id: "need", title: "지금 방에서 아쉬운 점은? (여러 개 선택 가능)", multi: true, options: [
       { label: "물건 둘 곳이 부족해요", needs: ["선반", "수납장", "수납 박스", "바구니", "신발 선반"] },
       { label: "방이 어두워요", needs: ["조명"] },
@@ -20,12 +13,16 @@
       { label: "바닥이 차갑고 밋밋해요", needs: ["러그"] },
       { label: "앉을 곳이 아쉬워요", needs: ["의자", "스툴", "벤치", "소파"] },
       { label: "잠자리가 아쉬워요", needs: ["침구", "침대 프레임"] },
-      { label: "작업할 책상이 아쉬워요", needs: ["책상", "테이블"] } ] }
+      { label: "작업할 책상이 아쉬워요", needs: ["책상", "테이블"] } ] },
+    { id: "limit", title: "지켜야 할 조건이 있나요? (선택)", multi: true, options: [
+      { label: "벽에 못을 박기 어려워요 (벽걸이 상품은 빼 주세요)", constraints: { noWall: true } } ] }
   ];
 
   var state = {
     items: [], photoURL: null,
-    diagnosis: null, owned: [], budget: 0,
+    moods: [], picks: [],          // 방 분위기 사진 8개와 사용자가 고른 분위기 id
+    interp: { matches: [], unknown: [] },
+    diagnosis: null, owned: [], room: null, budget: 0,
     groups: [],      // Agent.suggest 결과: 카테고리별 후보 목록
     current: [],     // 카테고리마다 지금 보여 주는 후보의 위치
     picked: [],      // 카테고리마다 담았는지
@@ -35,6 +32,7 @@
   };
   var $ = function (sel) { return document.querySelector(sel); };
   var won = function (n) { return n.toLocaleString("ko-KR") + "원"; };
+  var m2 = function (cm2) { return (Math.round(cm2 / 100) / 100).toLocaleString("ko-KR"); };   // cm² -> ㎡
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
 
@@ -49,9 +47,18 @@
   // ---- 1. 방 정보
   function budgetValue(sel) { return Math.max(0, parseInt($(sel).value, 10) || 0); }
 
+  // 방 크기(cm). 가로·세로를 모두 적절히 입력했을 때만 쓴다
+  function roomValue() {
+    var w = parseInt($("#roomW").value, 10), d = parseInt($("#roomD").value, 10);
+    return w >= 100 && d >= 100 ? { w: w, d: d } : null;
+  }
+
   function bindStep1() {
     $("#budgetChips").addEventListener("click", function (e) {
       if (e.target.dataset.v) $("#budget").value = e.target.dataset.v;
+    });
+    $("#roomChips").addEventListener("click", function (e) {
+      if (e.target.dataset.w) { $("#roomW").value = e.target.dataset.w; $("#roomD").value = e.target.dataset.d; }
     });
     $("#photoInput").addEventListener("change", function (e) {
       var file = e.target.files[0];
@@ -64,7 +71,39 @@
     $("#to2").addEventListener("click", function () { showStep(2); });
   }
 
-  // ---- 2. 취향
+  // ---- 2. 취향: 방 분위기 고르기, 객관식, 직접 쓰기
+  // 방 분위기 사진: data/moods.json (오늘의집 스타일 이름 + Pexels 사진). 고른 분위기의 스타일 가중치로 취향을 진단한다
+  function renderMood() {
+    $("#moodGrid").innerHTML = state.moods.map(function (m) {
+      return '<button type="button" class="mood" data-id="' + esc(m.id) + '" aria-pressed="false" aria-label="' + esc(m.title + ": " + m.subtitle) + '">' +
+        '<img class="mood-photo" src="' + esc(m.image) + '" alt="" loading="lazy">' +
+        '<span class="mood-title">' + esc(m.title) + '</span><span class="mood-sub">' + esc(m.subtitle) + '</span><span class="tick" aria-hidden="true">✓</span></button>';
+    }).join("");
+    var who = state.moods.map(function (m) { return m.credit.photographer; }).filter(function (v, i, a) { return a.indexOf(v) === i; });
+    $("#moodCredits").textContent = "방 분위기 사진: Pexels (Pexels License) · " + who.join(", ") + ".";
+    updateMoodCount();
+  }
+
+  function updateMoodCount() {
+    var n = state.picks.length;
+    $("#moodCount").textContent = n === 0 ? "마음에 드는 방 분위기를 " + MIN_PICKS + "~" + MAX_PICKS + "개 눌러 주세요."
+      : n + "개 골랐어요. (최대 " + MAX_PICKS + "개)";
+  }
+
+  function bindMood() {
+    $("#moodGrid").addEventListener("click", function (e) {
+      var b = e.target.closest(".mood");
+      if (!b) return;
+      var id = b.dataset.id, k = state.picks.indexOf(id);
+      if (k >= 0) state.picks.splice(k, 1);
+      else if (state.picks.length < MAX_PICKS) state.picks.push(id);
+      else { $("#moodCount").textContent = "최대 " + MAX_PICKS + "개까지 고를 수 있어요. 하나를 빼고 골라 주세요."; return; }
+      var on = state.picks.indexOf(id) >= 0;
+      b.classList.toggle("on", on); b.setAttribute("aria-pressed", on ? "true" : "false");
+      updateMoodCount();
+    });
+  }
+
   function renderQuestions() {
     $("#questions").innerHTML = QUESTIONS.map(function (q) {
       return '<fieldset class="q"><legend>' + esc(q.title) + "</legend>" + q.options.map(function (o, i) {
@@ -75,25 +114,48 @@
   }
 
   function selectedOptions() {
-    var out = [], missing = false;
+    var out = [];
     QUESTIONS.forEach(function (q) {
       var checked = document.querySelectorAll('input[name="' + q.id + '"]:checked');
-      if (!checked.length && !q.multi) missing = true;
       for (var i = 0; i < checked.length; i++) out.push(q.options[+checked[i].value]);
     });
-    return { options: out, missing: missing };
+    return out;
+  }
+
+  // 직접 쓴 글을 어떻게 이해했는지 바로 보여 준다 (잘못 이해했거나 이해하지 못한 표현을 사용자가 알 수 있게)
+  function renderInterpretation() {
+    var text = $("#freeText").value;
+    state.interp = Agent.interpretText(text);
+    var r = state.interp, html = "";
+    if (r.matches.length) {
+      html += '<div class="interp-title">이렇게 이해했어요</div><ul class="interp-list">' + r.matches.map(function (m) {
+        return "<li><b>" + esc(m.meaning) + '</b><span>← "' + esc(m.phrase) + '"</span></li>';
+      }).join("") + "</ul>";
+    }
+    if (r.unknown.length) {
+      html += '<div class="interp-unknown">반영하지 못한 표현: ' + r.unknown.map(function (u) { return "“" + esc(u) + "”"; }).join(", ") +
+        '<div class="hint">지금은 정해 둔 단어(예: 어두워요, 좁아요, 공부, 수납, 가성비)로 이해해서 일부 표현은 반영하지 못해요. 다른 말로 풀어 쓰면 반영될 수 있어요.</div></div>';
+    }
+    $("#interpret").innerHTML = html;
   }
 
   // ---- 3. 추천 상품 고르기
   function runAgent() {
-    var sel = selectedOptions();
-    if (sel.missing) { $("#q-error").textContent = "분위기와 색감 질문에 답해 주세요."; $("#q-error").hidden = false; return; }
+    if (state.picks.length < MIN_PICKS) {
+      $("#q-error").textContent = "마음에 드는 방 분위기를 " + MIN_PICKS + "개 이상 골라 주세요."; $("#q-error").hidden = false;
+      $("#moodGrid").scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     $("#q-error").hidden = true;
     // 체크 항목 하나가 여러 카테고리를 뜻할 수 있어(예: 수납 가구 = 선반, 수납장) 쉼표로 이어 둔 값을 펼친다
     state.owned = [];
     Array.prototype.forEach.call(document.querySelectorAll("#ownedChecks input:checked"), function (c) { state.owned = state.owned.concat(c.value.split(",")); });
-    state.diagnosis = Agent.diagnose(sel.options);
-    state.groups = Agent.suggest(state.items, { owned: state.owned, diagnosis: state.diagnosis });
+    renderInterpretation();
+    var chosen = state.moods.filter(function (m) { return state.picks.indexOf(m.id) >= 0; });
+    var options = Agent.styleOptionsFromMoods(chosen).concat(selectedOptions(), Agent.optionsFromText(state.interp));
+    state.room = roomValue();
+    state.diagnosis = Agent.diagnose(options);
+    state.groups = Agent.suggest(state.items, { owned: state.owned, diagnosis: state.diagnosis, room: state.room });
     state.current = state.groups.map(function () { return 0; });
     state.picked = state.groups.map(function () { return false; });
     state.open = state.groups.map(function () { return false; });
@@ -108,9 +170,11 @@
 
   function cardHtml(g) {
     var grp = state.groups[g], opt = currentOption(g), it = opt.item, on = state.picked[g];
-    var others = grp.options.length - 1;
+    var others = grp.options.length - 1, fit = opt.fit || { state: "none" };
+    var fitBadge = fit.state === "over" ? '<span class="badge warn">방에 들어가기 어려워요</span>'
+      : fit.state === "tight" ? '<span class="badge caution">방에 비해 큰 편</span>' : "";
     var h = '<div class="card' + (on ? " on" : "") + '"><div class="item"><div class="thumb"><img src="' + esc(it.image) + '" alt=""></div><div class="body">' +
-      '<div class="name">' + esc(it.name) + (state.current[g] === 0 ? '<span class="badge top">추천 1순위</span>' : "") + "</div>" +
+      '<div class="name">' + esc(it.name) + (state.current[g] === 0 ? '<span class="badge top">추천 1순위</span>' : "") + fitBadge + "</div>" +
       (it.brand ? '<div class="brand">' + esc(it.brand) + "</div>" : "") +
       '<div class="price">약 ' + won(it.price) + " · " + esc(it.category) + "</div>" +
       (opt.reasons.length ? "<ul>" + opt.reasons.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" : "") +
@@ -120,17 +184,22 @@
     if (state.open[g]) {
       h += '<div class="alts">' + grp.options.map(function (o, k) {
         if (k === state.current[g]) return "";
-        return '<button type="button" class="alt" data-act="alt" data-g="' + g + '" data-o="' + k + '"><img src="' + esc(o.item.image) + '" alt="">' +
-          "<span>" + esc(o.item.name) + "</span><b>약 " + won(o.item.price) + "</b></button>";
+        var warn = o.fit && o.fit.state === "over" ? " warn" : "";
+        return '<button type="button" class="alt' + warn + '" data-act="alt" data-g="' + g + '" data-o="' + k + '"><img src="' + esc(o.item.image) + '" alt="">' +
+          "<span>" + esc(o.item.name) + "</span><b>약 " + won(o.item.price) + "</b>" + (warn ? "<em>방에 큼</em>" : "") + "</button>";
       }).join("") + "</div>";
     }
     return h + "</div>";
   }
 
   function renderStep3() {
-    var d = state.diagnosis;
+    var d = state.diagnosis, r = state.interp;
+    var notes = Agent.constraintNotes(state.items, { owned: state.owned, diagnosis: d, room: state.room });
+    if (r.matches.length) notes.push("직접 적으신 내용에서 " + r.matches.length + "가지를 반영했어요: " + r.matches.map(function (m) { return m.meaning; }).join(", ") + ".");
+    if (r.unknown.length) notes.push("반영하지 못한 표현: " + r.unknown.map(function (u) { return "“" + u + "”"; }).join(", ") + " (정해 둔 단어로만 이해해서 일부는 반영하지 못해요).");
     $("#diag").innerHTML = '<div class="summary"><b>진단 결과: ' + esc(d.primary) + "</b>" + (d.secondary ? " (보조: " + esc(d.secondary) + ")" : "") +
-      '<div class="hint">추천 순서는 고르신 스타일과의 일치, 아쉬운 점으로 답하신 항목, 생활에 먼저 필요한 정도(필요도), 못 없이 설치할 수 있는지를 점수로 합산해 정했어요. 가격은 실제 판매가가 아니라 참고용 추정값이에요.</div></div>';
+      '<div class="hint">고르신 방 분위기 ' + state.picks.length + "개를 보고 취향을 추정했어요. 추천 순서는 스타일 일치, 아쉬운 점으로 답하거나 적으신 항목, 생활에 먼저 필요한 정도(필요도), 방 크기를 점수로 합산해 정했어요. 가격은 실제 판매가가 아니라 참고용 추정값이에요.</div>" +
+      notes.map(function (t) { return '<div class="note">' + esc(t) + "</div>"; }).join("") + "</div>";
     if (!state.groups.length) {
       $("#suggestions").innerHTML = "<p>이미 갖고 있다고 체크한 항목이 전부라 더 추천할 게 없어요. 1단계에서 체크를 줄여 보세요.</p>";
     } else {
@@ -147,16 +216,20 @@
     var total = state.selected.reduce(function (s, it) { return s + it.price; }, 0);
     var diff = state.budget - total, over = diff < 0;
     var nail = state.selected.filter(function (it) { return !it.noDrill; }).length;
-    $("#cartBar").className = "cart-bar" + (over ? " over" : "");
+    var fb = Agent.floorBudget(state.room, state.owned);
+    var used = state.selected.reduce(function (s, it) { return s + Agent.footprint(it); }, 0);
+    var floorOver = !!fb && used > fb.remaining;
+    $("#cartBar").className = "cart-bar" + (over || floorOver ? " over" : "");
     $("#cartBar").innerHTML = "<div>담은 상품 <b>" + state.selected.length + "개</b> · 합계 약 <b>" + won(total) + "</b> / 예산 " + won(state.budget) +
       " · " + (over ? "<b>예산 " + won(-diff) + " 초과</b>" : "남은 예산 " + won(diff)) + "</div>" +
+      (fb ? "<div>바닥 사용 약 " + m2(used) + "㎡ / 남은 여유 약 " + m2(fb.remaining) + "㎡" + (floorOver ? " · <b>방에 비해 가구가 많아요</b>" : "") + "</div>" : "") +
       (nail ? '<div class="hint">벽에 못이 필요할 수 있는 상품 ' + nail + "개 (퇴실 때 원상복구 주의)</div>" : "");
     $("#to4").disabled = state.selected.length === 0;
   }
 
   function autoPick() {
     state.budget = budgetValue("#budget3");
-    var r = Agent.recommend(state.items, { budget: state.budget, owned: state.owned, diagnosis: state.diagnosis });
+    var r = Agent.recommend(state.items, { budget: state.budget, owned: state.owned, diagnosis: state.diagnosis, room: state.room });
     state.picked = state.groups.map(function () { return false; });
     r.picked.forEach(function (p) {
       for (var g = 0; g < state.groups.length; g++) {
@@ -220,15 +293,17 @@
 
   // ---- 시작
   function init() {
-    bindStep1(); renderQuestions(); bindStep3(); bindStep4();
+    bindStep1(); renderQuestions(); bindMood(); bindStep3(); bindStep4();
+    $("#freeText").addEventListener("input", renderInterpretation);
     $("#back1").addEventListener("click", function () { showStep(1); });
     $("#to3").addEventListener("click", runAgent);
     $("#back2").addEventListener("click", function () { showStep(2); });
     $("#to4").addEventListener("click", startOverlay);
     $("#back3").addEventListener("click", function () { showStep(3); });
     showStep(1);
-    fetch("data/items.json?v=20261026b").then(function (r) { return r.json(); })
-      .then(function (d) { state.items = d; })
+    Promise.all([fetch("data/items.json?v=20261027e").then(function (r) { return r.json(); }),
+                 fetch("data/moods.json?v=20261027e").then(function (r) { return r.json(); })])
+      .then(function (res) { state.items = res[0]; state.moods = res[1]; renderMood(); })
       .catch(function () { $("#loadError").hidden = false; $("#to2").disabled = true; });
   }
   init();
