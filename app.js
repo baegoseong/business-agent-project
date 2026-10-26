@@ -41,7 +41,7 @@
   function showStep(n) {
     for (var i = 1; i <= 4; i++) $("#step" + i).hidden = (i !== n);
     var lis = document.querySelectorAll("#steps li");
-    for (var j = 0; j < lis.length; j++) lis[j].classList.toggle("on", j === n - 1);
+    for (var j = 0; j < lis.length; j++) { lis[j].classList.toggle("on", j === n - 1); lis[j].classList.toggle("done", j < n - 1); }
     if (n === 4) Overlay.resize();
     window.scrollTo(0, 0);
   }
@@ -204,17 +204,11 @@
   }
 
   function bindStep4() {
-    Overlay.init($("#room"), function (p) {
-      $("#controls").hidden = !p;
-      if (p) { $("#ctlScale").value = p.scale; $("#ctlRot").value = p.rot; }
-    });
+    Overlay.init($("#room"));
     $("#palette").addEventListener("click", function (e) {
       var btn = e.target.closest("button");
       if (btn) Overlay.addItem(state.selected[+btn.dataset.i]);
     });
-    $("#ctlScale").addEventListener("input", function (e) { Overlay.setScale(+e.target.value); });
-    $("#ctlRot").addEventListener("input", function (e) { Overlay.setRotation(+e.target.value); });
-    $("#ctlDelete").addEventListener("click", Overlay.removeSelected);
     $("#savePng").addEventListener("click", function () {
       Overlay.toBlob(function (blob) {
         var a = document.createElement("a");
@@ -233,7 +227,7 @@
     $("#to4").addEventListener("click", startOverlay);
     $("#back3").addEventListener("click", function () { showStep(3); });
     showStep(1);
-    fetch("data/items.json").then(function (r) { return r.json(); })
+    fetch("data/items.json?v=20261026b").then(function (r) { return r.json(); })
       .then(function (d) { state.items = d; })
       .catch(function () { $("#loadError").hidden = false; $("#to2").disabled = true; });
   }
