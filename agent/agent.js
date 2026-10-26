@@ -40,53 +40,200 @@ var Agent = (function () {
     return moods.map(function (m) { return { label: m.title, styles: m.styles, source: "mood" }; });
   }
 
-  // 직접 쓴 글을 키워드 규칙으로 해석한다. LLM이 아니라 정해진 단어 목록이라 모든 표현을 이해하지는 못한다.
-  // 각 규칙: 정규식(re), 보여 줄 의미(meaning), 반영할 필요 카테고리(needs) / 스타일(styles) / 조건(constraints)
-  var TEXT_RULES = [
-    { id: "light", re: /어둡|어두|조명|불빛|밝게|램프|스탠드|침침|눈이 아|눈 아/, meaning: "조명이 필요해요", needs: ["조명"] },
-    { id: "storage", re: /수납|정리|어질러|어지러|짐이|물건이 많|물건 둘|서랍|책이 많|책 정리|책장/, meaning: "수납이 필요해요", needs: ["선반", "수납장", "수납 박스", "바구니"] },
-    { id: "clothes", re: /옷이 많|옷 정리|옷장|행거|옷걸이|옷 둘/, meaning: "옷 수납이 필요해요", needs: ["수납장", "선반", "수납 박스"] },
-    { id: "shoes", re: /신발|현관/, meaning: "신발·현관 정리가 필요해요", needs: ["신발 선반", "벤치"] },
-    { id: "study", re: /공부|책상|작업|노트북|재택|과제|시험|레포트|리포트|컴퓨터/, meaning: "공부·작업 공간이 필요해요", needs: ["책상", "의자", "조명"] },
-    { id: "seat", re: /앉|소파|의자|손님|친구가|친구 오|휴식|쉴 곳|쉬는/, meaning: "앉을 곳이 필요해요", needs: ["소파", "의자", "스툴", "벤치"] },
-    { id: "sleep", re: /침대|침구|이불|잠자|수면|숙면|푹신|매트/, meaning: "잠자리를 보강하고 싶어요", needs: ["침대 프레임", "침구"] },
-    { id: "floor", re: /바닥|러그|카펫|차갑|발이 시|층간|소음/, meaning: "바닥을 보강하고 싶어요", needs: ["러그"] },
-    { id: "empty", re: /허전|휑|삭막|꾸미|꾸며|분위기|감성|인테리어 소품/, meaning: "방을 채우는 소품이 필요해요", needs: ["꽃병", "화분", "벽장식", "시계", "거울", "쿠션", "소품"] },
-    { id: "plant", re: /식물|화분|초록|플랜테리어/, meaning: "식물·화분을 두고 싶어요", needs: ["화분", "꽃병"] },
-    { id: "mirror", re: /거울|전신|외출 준비|화장/, meaning: "거울이 필요해요", needs: ["거울"] },
-    { id: "clock", re: /시계|시간 확인|알람/, meaning: "시계가 필요해요", needs: ["시계"] },
-    { id: "table", re: /테이블|식탁|밥 먹|커피|협탁|탁자|간식/, meaning: "테이블이 필요해요", needs: ["테이블"] },
-    { id: "cushion", re: /쿠션|포근|아늑/, meaning: "포근한 느낌이 필요해요", needs: ["쿠션"], styles: { "따뜻한": 2 } },
-    { id: "warm", re: /따뜻|감성|빈티지|코지/, meaning: "따뜻한 분위기를 원해요", styles: { "따뜻한": 2 } },
-    { id: "wood", re: /우드|원목|나무|내추럴|자연/, meaning: "나무 질감을 원해요", styles: { "우드": 2 } },
-    { id: "minimal", re: /깔끔|심플|미니멀|화이트|정돈|단순/, meaning: "깔끔한 분위기를 원해요", styles: { "미니멀": 2 } },
-    { id: "modern", re: /모던|세련|도시|블랙|모노|시크/, meaning: "세련된 분위기를 원해요", styles: { "모던": 2 } },
-    { id: "nail", re: /못.*(박|안|어렵|안돼)|원상복구|월세|보증금|벽에.*구멍|구멍.*안/, meaning: "벽에 못을 박기 어려워요", constraints: { noWall: true } },
-    { id: "compact", re: /좁|작은 방|협소|공간이 부족|공간 부족|답답|여유가 없/, meaning: "공간이 좁아서 작은 가구가 좋아요", constraints: { compact: true } },
-    { id: "frugal", re: /저렴|가성비|싸게|싼|알뜰|돈이 없|예산이 적|절약|아끼/, meaning: "가격이 저렴한 편을 원해요", constraints: { frugal: true } }
+  // ---- 직접 쓴 글 해석: 규칙(키워드) -> 예시 문장 유사도 -> 애매하면 되묻기. LLM은 쓰지 않는다.
+  // kind: need(추천이 필요한 카테고리) / style(취향) / constraint(조건) / noProduct(우리 상품 데이터에 없는 종류)
+  // re: 키워드 규칙(정확한 단어), examples: 말을 바꿔 쓴 문장을 잡기 위한 예시 문장(유사도 비교용)
+  // generic: 일반 고민이라 같은 문장에 더 구체적인 말(예: 책장)이 있으면 양보한다. overrides: 이 의도가 잡히면 같은 문장에서 무시할 의도
+  var NEED_STORAGE = ["선반", "수납장", "수납 박스", "바구니"];
+  var NEED_SEAT = ["소파", "의자", "스툴", "벤치"];
+  var NEED_EMPTY = ["꽃병", "화분", "벽장식", "시계", "거울", "쿠션", "소품"];
+  var INTENTS = [
+    { id: "light", kind: "need", meaning: "조명이 필요해요", needs: ["조명"],
+      re: /어둡|어두|어둑|침침|캄캄|깜깜|흐려|흐릿|조명|불빛|밝게|밝았으면|환하게|램프|스탠드|무드등|전등|눈이 (아|피곤)|불이 약|불 ?켜|빛이/,
+      examples: ["방이 어두워서 불편해요", "불을 켜도 침침해요", "책 읽을 조명이 필요해요", "밝은 전등이 있었으면 좋겠어요", "눈이 피곤하지 않은 불빛이면 좋겠어요", "은은한 무드등을 두고 싶어요", "빛이 부족해서 답답해요"] },
+    { id: "storage", kind: "need", generic: true, meaning: "수납이 필요해요", needs: NEED_STORAGE,
+      re: /수납|정리|어질러|어지러|너저분|지저분|어수선|짐이|짐을|물건이 많|물건 ?둘|서랍|옷이 많|옷 정리|옷장|둘 데|둘 곳|보관|넣어 ?둘|넣을 곳|잡동사니|잡다|쌓여|널려|물건을 넣/,
+      examples: ["물건을 넣어둘 곳이 없어요", "방이 항상 어질러져 있어요", "옷을 둘 자리가 부족해요", "정리가 안 돼서 스트레스예요", "서랍이나 수납장이 있으면 좋겠어요", "잡동사니를 숨기고 싶어요", "짐이 많아서 방이 복잡해요"] },
+    { id: "shelf", kind: "need", meaning: "책장·선반이 필요해요", needs: ["선반"],
+      re: /책장|선반|책꽂이|책이 ?(너무 )?많|책을? ?꽂|꽂을|꽂아|서가|진열/,
+      examples: ["책을 꽂아둘 책장이 필요해요", "물건을 올려둘 선반이 있었으면 해요", "책이 많아서 꽂을 곳이 필요해요", "진열할 수 있는 선반을 놓고 싶어요"] },
+    { id: "underbed", kind: "need", meaning: "침대 밑 공간을 수납에 쓰고 싶어요", needs: ["수납 박스", "바구니"],
+      re: /침대 ?(밑|아래|하부)/,
+      examples: ["침대 밑에 이불을 넣어두고 싶어요", "침대 아래 빈 공간이 아까워요", "침대 하부를 창고처럼 쓰고 싶어요"] },
+    { id: "vertical", kind: "need", meaning: "벽·세로 공간을 쓰고 싶어요", needs: ["선반", "수납장"],
+      re: /벽에 ?(걸|달)|세로|높이를? ?활용|벽걸이|문 ?뒤|벽면|벽을 ?(활용|쓰|이용|사용)|벽 ?(이용|사용|활용)|위로 ?(쌓|올)|세워서|(걸|달) 수 있는|무타공|타공 ?없이/,
+      examples: ["바닥 말고 벽을 활용하고 싶어요", "높이 쌓아서 공간을 아끼고 싶어요", "벽에 달 수 있는 수납이 좋아요", "문 뒤 빈 공간을 쓰고 싶어요"] },
+    { id: "partition", kind: "need", meaning: "공간을 나누고 싶어요", needs: ["선반"], overrides: ["study", "sleep", "seat"],
+      re: /공간 ?(을 )?(분리|구분|나누)|(구분|분리|나누).{0,6}(공간|영역)|파티션|칸막이/,
+      examples: ["잠자는 곳과 공부하는 곳을 나누고 싶어요", "방 한가운데를 구분해 주는 가구가 필요해요", "원룸을 두 공간으로 분리하고 싶어요"] },
+    { id: "shoes", kind: "need", meaning: "신발·현관 정리가 필요해요", needs: ["신발 선반", "벤치"],
+      re: /신발|현관|구두|운동화/,
+      examples: ["들어오자마자 신발이 널려 있어요", "신발을 정리할 곳이 필요해요", "앉아서 신발 벗을 자리가 있으면 좋겠어요"] },
+    { id: "study", kind: "need", meaning: "공부·작업 공간이 필요해요", needs: ["책상", "의자", "조명"],
+      re: /공부|책상(?! ?(위|앞|조명|스탠드))|작업(할|대| ?환경| ?자리|실)|노트북|재택|과제|시험|레포트|리포트|컴퓨터|데스크|업무|독서/,
+      examples: ["집에서 공부할 자리가 필요해요", "노트북을 놓고 과제할 공간이 없어요", "재택근무 환경을 만들고 싶어요", "시험 준비할 자리가 있었으면 좋겠어요", "일할 수 있는 자리를 만들고 싶어요"] },
+    { id: "seat", kind: "need", meaning: "앉을 곳이 필요해요", needs: NEED_SEAT,
+      re: /앉|소파|의자|손님|친구가|친구 ?오|놀러|방문|휴식|쉴 곳|쉬는|걸터|기대/,
+      examples: ["사람이 오면 앉을 데가 없어요", "편하게 쉴 수 있는 자리가 필요해요", "누워서 쉬고 싶어요", "영화 볼 때 편하게 앉고 싶어요"] },
+    { id: "sleep", kind: "need", meaning: "잠자리를 보강하고 싶어요", needs: ["침대 프레임", "침구"],
+      re: /침대(?! ?(밑|아래|하부|옆))|침구|이불|잠자|수면|숙면|베개|잠이|푹신(?! ?한? ?쿠션)/,
+      examples: ["잠을 푹 자고 싶어요", "자려고 누우면 불편해요", "포근하게 잘 수 있는 잠자리가 필요해요", "바닥에서 자서 허리가 아파요"] },
+    { id: "floor", kind: "need", meaning: "바닥을 보강하고 싶어요", needs: ["러그"],
+      re: /바닥(이|은|에서)? ?(차|춥|시리|시려|휑|딱딱|밋밋)|러그|카펫|발이 ?시|발바닥|맨발|얼어|층간|소음|울려|맨바닥|외풍/,
+      examples: ["발이 시려서 걸어 다니기 싫어요", "아래층에 소리가 들릴까 걱정돼요", "바닥이 휑하고 차가워요"] },
+    { id: "empty", kind: "need", meaning: "방을 채우는 소품이 필요해요", needs: NEED_EMPTY,
+      re: /허전|휑|삭막|밋밋|텅 ?빈|비어 ?보|인테리어 ?소품/,
+      examples: ["방이 비어 보여서 쓸쓸해요", "벽이 너무 밋밋해요", "방에 포인트가 없어요", "썰렁해서 사람 사는 느낌이 안 나요"] },
+    { id: "plant", kind: "need", meaning: "식물·화분을 두고 싶어요", needs: ["화분", "꽃병"],
+      re: /식물|화분|초록|플랜테리어|꽃병|꽃을/,
+      examples: ["방에 초록색이 있으면 좋겠어요", "작은 화분을 키워보고 싶어요", "꽃을 꽂아둘 곳이 필요해요"] },
+    { id: "mirror", kind: "need", meaning: "거울이 필요해요", needs: ["거울"],
+      re: /거울|전신|얼굴|화장|메이크업|옷차림|옷매무새|머리 ?손질|외출 ?(전|준비)/,
+      examples: ["나가기 전에 옷차림을 확인하고 싶어요", "머리 손질할 때 볼 것이 필요해요"] },
+    { id: "clock", kind: "need", meaning: "시계가 필요해요", needs: ["시계"],
+      re: /시계|시간 ?(을 )?(자꾸 |자주 )?(확인|봐|보)|알람|지각|늦잠|몇 ?시/,
+      examples: ["지금 몇 시인지 보고 싶어요", "아침에 늦지 않게 시간을 확인하고 싶어요"] },
+    { id: "table", kind: "need", meaning: "테이블이 필요해요", needs: ["테이블"],
+      re: /테이블|식탁|밥 ?(도 )?먹|커피|협탁|탁자|탁상|작은 ?상|상이|간식|화장대|충전기|침대 ?옆|올려 ?둘|사이드/,
+      examples: ["침대 옆에 물건을 올려둘 곳이 필요해요", "차 한 잔 놓을 작은 자리가 있었으면 해요", "밥 먹을 때 쓸 상이 필요해요"] },
+    { id: "cushion", kind: "need", meaning: "쿠션이 필요해요", needs: ["쿠션"],
+      re: /쿠션/,
+      examples: ["등에 받칠 쿠션이 있었으면 해요", "소파에 놓을 쿠션이 필요해요"] },
+    { id: "warm", kind: "style", meaning: "따뜻한 분위기를 원해요", styles: { "따뜻한": 2 },
+      re: /따뜻|따스|온기|감성|코지|포근|아늑|카페/,
+      examples: ["집에 오면 마음이 편안해지는 분위기였으면 해요", "은은하고 따스한 느낌이 좋아요", "카페 같은 감성이 좋아요"] },
+    { id: "wood", kind: "style", meaning: "나무 질감을 원해요", styles: { "우드": 2 },
+      re: /우드|원목|나무|내추럴|자연/,
+      examples: ["자연스러운 느낌이 좋아요", "원목 가구로 채우고 싶어요"] },
+    { id: "minimal", kind: "style", meaning: "깔끔한 분위기를 원해요", styles: { "미니멀": 2 },
+      re: /깔끔|심플|미니멀|화이트|정돈|단정|단순|하얀|말끔|산뜻|물건이 ?적|적어 ?보이|여백/,
+      examples: ["물건이 적고 단정한 방이면 좋겠어요", "밝고 단순한 인테리어를 원해요", "군더더기 없이 정리된 느낌이 좋아요"] },
+    { id: "modern", kind: "style", meaning: "세련된 분위기를 원해요", styles: { "모던": 2 },
+      re: /모던|세련|도시|블랙|모노|시크|검정|고급|차분|호텔|럭셔리|무채색/,
+      examples: ["고급스럽고 도시적인 느낌이요", "어두운 톤으로 차분하게 하고 싶어요"] },
+    { id: "nordic", kind: "style", meaning: "북유럽 스타일을 원해요", styles: { "우드": 3, "미니멀": 2, "따뜻한": 1 }, re: /북유럽|스칸디/, examples: ["스칸디나비아풍으로 꾸미고 싶어요"] },
+    { id: "vintage", kind: "style", meaning: "빈티지·레트로 스타일을 원해요", styles: { "따뜻한": 3, "우드": 1 }, re: /빈티지|레트로|앤티크/, examples: ["옛날 감성의 방을 만들고 싶어요"] },
+    { id: "lovely", kind: "style", meaning: "러블리·로맨틱 스타일을 원해요", styles: { "따뜻한": 3, "미니멀": 1 }, re: /러블리|로맨틱|핑크|파스텔/, examples: ["사랑스럽고 아기자기한 방이 좋아요"] },
+    { id: "industrial", kind: "style", meaning: "인더스트리얼 스타일을 원해요", styles: { "모던": 3, "우드": 1 }, re: /인더스트리얼|공장|벽돌|철제|콘크리트/, examples: ["거칠고 투박한 느낌의 방을 원해요"] },
+    { id: "french", kind: "style", meaning: "프렌치·프로방스 스타일을 원해요", styles: { "따뜻한": 3, "미니멀": 1 }, re: /프렌치|프로방스/, examples: ["프랑스 가정집 같은 분위기가 좋아요"] },
+    { id: "nail", kind: "constraint", meaning: "벽에 못을 박기 어려워요", constraints: { noWall: true },
+      re: /못.*(박|안|어렵|안 ?돼|싫|뚫|쓰기|치)|원상복구|복구|월세|보증금|깎일|물어 ?(줘|내)|(구멍|타공).*(안|못|싫|어렵|절대|뚫)|무타공|구멍 ?안|탈부착|퇴실|집주인|임대|흠집|흔적|스크래치|도배|벽지 ?(상|손상|훼손)/,
+      examples: ["집주인이 벽을 건드리지 말래요", "나갈 때 흔적이 남으면 안 돼요", "벽에 손대지 않고 꾸미고 싶어요"] },
+    { id: "compact", kind: "constraint", meaning: "공간이 좁아서 작은 가구가 좋아요", constraints: { compact: true },
+      re: /좁|비좁|작은 ?방|방이 ?작|한 ?칸|협소|공간이 ?(부족|없)|공간 ?부족|답답|여유가 ?없|꽉 ?차|빡빡|낮은 ?가구|키 ?작은 ?가구|작은 ?가구|큰 ?가구는 ?부담|소형|컴팩트|원룸이 ?작|가구 ?몇 ?개|넓어 ?보이|넓게 ?쓰/,
+      examples: ["방이 작아서 가구를 많이 못 놓아요", "움직일 공간이 없어요", "가구를 놓으면 방이 꽉 차요", "큰 가구는 들어가지 않아요"] },
+    { id: "frugal", kind: "constraint", meaning: "가격이 저렴한 편을 원해요", constraints: { frugal: true },
+      re: /저렴|가성비|싸게|싸고|싼|알뜰|돈이 ?(없|별로)|용돈|빠듯|학생이라|부담스러|예산이 ?적|절약|아끼|가격 ?부담|부담 ?(없|이 ?적)|중고|렌탈|저가/,
+      examples: ["가진 돈이 많지 않아요", "너무 비싸지 않았으면 좋겠어요", "학생이라 예산이 빠듯해요"] },
+    { id: "np_curtain", kind: "noProduct", meaning: "커튼", re: /커튼|블라인드|암막|창문 ?(을 )?(가리|가릴|가림)|가림막|햇빛 ?(을 )?(가리|차단)/, examples: ["창문을 가릴 것이 필요해요"] },
+    { id: "np_hook", kind: "noProduct", meaning: "압축봉·후크·행거", overrides: ["storage"], re: /압축봉|후크|고리|행거|옷 ?걸이|걸이대|걸어 ?(둘|놓)|걸 ?곳/, examples: ["옷을 걸어둘 곳이 필요해요"] },
+    { id: "np_mattress", kind: "noProduct", meaning: "매트리스·토퍼", overrides: ["sleep"], re: /매트리스|토퍼|침대 ?패드|이부자리|깔 ?요|요를|요가 ?필요|침낭|바닥에 ?깔/, examples: ["바닥에 깔고 잘 푹신한 것이 필요해요"] },
+    { id: "np_beanbag", kind: "noProduct", meaning: "빈백", overrides: ["seat"], re: /빈백/, examples: ["푹 꺼지는 쿠션 의자를 갖고 싶어요"] },
+    { id: "np_appliance", kind: "noProduct", meaning: "가전제품", re: /냉장고|세탁기|에어컨|전자레인지|선풍기|히터|가전|티비|텔레비전|청소기|공기청정기/, examples: ["여름에 시원하게 지내고 싶어요"] }
   ];
+  var INTENT_BY_ID = {};
+  INTENTS.forEach(function (it) { INTENT_BY_ID[it.id] = it; });
 
-  // 반환: { matches: [{ id, phrase, meaning, needs, styles, constraints }], unknown: [문장] }
-  function interpretText(text) {
-    var out = { matches: [], unknown: [] };
-    var clauses = String(text || "").split(/[,.\n!?;·]+|\s+(?:그리고|그래서|근데|하지만|또는)\s+/)
+  // 부정: 필요한 것으로 읽으면 안 되는 문장("어둡지 않아요", "수납은 충분해요"). 조건(못 박기 어려움 등)과 취향에는 적용하지 않는다.
+  var NEGATION = /(지|진) ?(않|못)|괜찮|충분|넉넉|필요 ?없|됐어|안 ?(어둡|어두|좁|부족)|아쉽지/;
+  // 한 문장 안에서 뜻이 갈리는 연결 표현(…인데 / …지만 / …괜찮고)은 앞에서 끊는다
+  var CLAUSE_BREAK = /(괜찮고|괜찮은데|괜찮지만|충분한데|충분하고|충분하지만|필요 ?없고|필요 ?없지만|필요 ?없는데|인데|한데|은데|는데|지만|그런데|면서|으며|이며)/g;
+
+  // ---- 유사도: 글자 두 개씩(bigram) 쪼갠 집합의 겹침. 어미를 떼고 비교해 "해요"처럼 흔한 끝말 때문에 비슷해 보이는 것을 줄인다.
+  var ENDINGS = /(이?에요|예요|해요|어요|아요|네요|습니다|세요|싶어요|좋겠어요|했으면|있었으면|있으면|으면 ?해요|면 ?좋겠어요)$/;
+  var SIM_ACCEPT = 0.62;      // 이 이상이면 바로 반영
+  var SIM_ASK = 0.40;         // 이 이상이면 "이런 뜻인가요?"로 되묻는다
+  function stem(text) {
+    var t = String(text).replace(/[\s.,!?;·~…'"“”]+/g, "");
+    var prev;
+    do { prev = t; t = t.replace(ENDINGS, ""); } while (t !== prev && t.length > 2);
+    return t;
+  }
+  function grams(text) {
+    var t = stem(text), g = {}, n = 0;
+    for (var i = 0; i + 1 < t.length; i++) { var k = t.substr(i, 2); if (!g[k]) { g[k] = 1; n++; } }
+    return { set: g, n: n };
+  }
+  function similarity(a, b) {
+    if (!a.n || !b.n) return 0;
+    var common = 0;
+    Object.keys(a.set).forEach(function (k) { if (b.set[k]) common++; });
+    var dice = 2 * common / (a.n + b.n), overlap = common / Math.min(a.n, b.n);
+    return 0.5 * dice + 0.5 * overlap;
+  }
+  INTENTS.forEach(function (it) { it.exampleGrams = it.examples.map(grams); });
+
+  function bestSimilarities(clause) {
+    var g = grams(clause), out = [];
+    INTENTS.forEach(function (it) {
+      var best = 0;
+      it.exampleGrams.forEach(function (eg) { var s = similarity(g, eg); if (s > best) best = s; });
+      out.push({ id: it.id, meaning: it.meaning, score: Math.round(best * 100) / 100 });
+    });
+    return out.sort(function (a, b) { return b.score - a.score; });
+  }
+
+  function matchOf(it, phrase, via, score) {
+    return { id: it.id, kind: it.kind, phrase: phrase, meaning: it.meaning, needs: it.needs || [], styles: it.styles || {}, constraints: it.constraints || {}, via: via, score: score };
+  }
+
+  // 반환: { matches: [{ id, kind, phrase, meaning, needs, styles, constraints, via: keyword|similar|confirmed, score }],
+  //         noProduct: [{ id, phrase, meaning }], negated: [{ phrase, meaning }], uncertain: [{ phrase, candidates: [{ id, meaning, score }] }], unknown: [문장] }
+  // opts: { similarity: false면 키워드 규칙만, choices: { 문장: 의도 id | "none" } 되묻기에 사용자가 답한 것 }
+  function interpretText(text, opts) {
+    opts = opts || {};
+    var useSim = opts.similarity !== false, choices = opts.choices || {};
+    var askAt = opts.askThreshold !== undefined ? opts.askThreshold : SIM_ASK;   // (평가용) 되묻기 문턱을 바꿔 볼 수 있다
+    var out = { matches: [], noProduct: [], negated: [], uncertain: [], unknown: [] };
+    var clauses = String(text || "").replace(CLAUSE_BREAK, "$1,").split(/[,.\n!?;·]+|\s+(?:그리고|그래서|근데|하지만|또는)\s+/)
       .map(function (c) { return c.trim(); }).filter(function (c) { return c.length >= 2; });
     var seen = {};
     clauses.forEach(function (clause) {
-      var hit = false;
-      TEXT_RULES.forEach(function (r) {
-        if (!r.re.test(clause)) return;
-        hit = true;
-        if (seen[r.id]) return;
-        seen[r.id] = true;
-        out.matches.push({ id: r.id, phrase: clause, meaning: r.meaning, needs: r.needs || [], styles: r.styles || {}, constraints: r.constraints || {} });
+      var squeezed = clause.replace(/\s+/g, "");   // 띄어쓰기 없이 쓴 문장("방이너무어두워요")도 잡는다
+      var hits = INTENTS.filter(function (it) { return it.re.test(clause) || it.re.test(squeezed); });
+      var hitIds = hits.map(function (it) { return it.id; });
+      // 더 구체적인 말이 있으면 일반 고민은 양보하고, 지정한 의도는 같은 문장에서 무시한다
+      var suppressed = {};
+      hits.forEach(function (it) { (it.overrides || []).forEach(function (o) { suppressed[o] = true; }); });
+      var specificStorage = ["shelf", "underbed", "vertical", "partition", "shoes"].some(function (id) { return hitIds.indexOf(id) >= 0; });
+      if (specificStorage) suppressed.storage = true;
+      hits = hits.filter(function (it) { return !suppressed[it.id]; });
+      var negated = NEGATION.test(clause);
+      var accepted = 0;
+      hits.forEach(function (it) {
+        var affectedByNegation = it.kind === "need" || it.kind === "noProduct";
+        if (negated && affectedByNegation) { out.negated.push({ phrase: clause, meaning: it.meaning }); return; }
+        if (seen[it.id]) { accepted++; return; }
+        seen[it.id] = true; accepted++;
+        if (it.kind === "noProduct") out.noProduct.push({ id: it.id, phrase: clause, meaning: it.meaning });
+        else out.matches.push(matchOf(it, clause, "keyword", 1));
       });
-      if (!hit) out.unknown.push(clause);
+      if (hits.length || negated) { if (!accepted && !negated) out.unknown.push(clause); return; }
+      // 키워드가 하나도 없는 문장: 사용자가 이미 답했으면 그대로, 아니면 예시 문장과의 유사도로 판단
+      var choice = choices[clause];
+      if (choice === "none") { out.unknown.push(clause); return; }
+      if (choice && INTENT_BY_ID[choice]) {
+        var ci = INTENT_BY_ID[choice];
+        if (ci.kind === "noProduct") out.noProduct.push({ id: ci.id, phrase: clause, meaning: ci.meaning });
+        else if (!seen[ci.id]) { seen[ci.id] = true; out.matches.push(matchOf(ci, clause, "confirmed", 1)); }
+        return;
+      }
+      if (!useSim) { out.unknown.push(clause); return; }
+      var ranked = bestSimilarities(clause), top = ranked[0];
+      if (top.score >= SIM_ACCEPT) {
+        var ti = INTENT_BY_ID[top.id];
+        if (ti.kind === "noProduct") out.noProduct.push({ id: ti.id, phrase: clause, meaning: ti.meaning });
+        else if (!seen[ti.id]) { seen[ti.id] = true; out.matches.push(matchOf(ti, clause, "similar", top.score)); }
+      } else if (top.score >= askAt) {
+        out.uncertain.push({ phrase: clause, candidates: ranked.filter(function (r) { return r.score >= askAt; }).slice(0, 3) });
+      } else {
+        out.unknown.push(clause);
+      }
     });
     return out;
   }
 
-  // 해석 결과 -> 진단에 넣을 선택지
+  // 해석 결과 -> 진단에 넣을 선택지 (우리 상품이 없는 종류는 추천에 쓰지 않는다)
   function optionsFromText(interp) {
     return interp.matches.map(function (m) {
       return { label: m.phrase, source: "text", needs: m.needs, styles: m.styles, constraints: m.constraints };

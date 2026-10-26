@@ -21,7 +21,8 @@
   var state = {
     items: [], photoURL: null,
     moods: [], picks: [],          // 방 분위기 사진 8개와 사용자가 고른 분위기 id
-    interp: { matches: [], unknown: [] },
+    interp: { matches: [], noProduct: [], negated: [], uncertain: [], unknown: [] },
+    choices: {}, asking: [],       // 되묻기에 사용자가 답한 것(문장 -> 의도)과 지금 되묻고 있는 문장들
     diagnosis: null, owned: [], room: null, budget: 0,
     groups: [],      // Agent.suggest 결과: 카테고리별 후보 목록
     current: [],     // 카테고리마다 지금 보여 주는 후보의 위치
@@ -122,21 +123,45 @@
     return out;
   }
 
-  // 직접 쓴 글을 어떻게 이해했는지 바로 보여 준다 (잘못 이해했거나 이해하지 못한 표현을 사용자가 알 수 있게)
+  // 직접 쓴 글을 어떻게 이해했는지 바로 보여 준다. 애매한 문장은 "이런 뜻인가요?"라고 되묻고, 못 알아들은 문장과 우리 상품에 없는 종류는 숨기지 않고 알려 준다.
+  function currentInterp() { return Agent.interpretText($("#freeText").value, { choices: state.choices }); }
+
   function renderInterpretation() {
-    var text = $("#freeText").value;
-    state.interp = Agent.interpretText(text);
-    var r = state.interp, html = "";
+    var r = state.interp = currentInterp(), html = "";
+    state.asking = r.uncertain.map(function (u) { return u.phrase; });
     if (r.matches.length) {
       html += '<div class="interp-title">이렇게 이해했어요</div><ul class="interp-list">' + r.matches.map(function (m) {
-        return "<li><b>" + esc(m.meaning) + '</b><span>← "' + esc(m.phrase) + '"</span></li>';
+        var how = m.via === "confirmed" ? " · 직접 확인했어요" : m.via === "similar" ? " · 비슷한 표현으로 이해했어요" : "";
+        return "<li><b>" + esc(m.meaning) + '</b><span>← "' + esc(m.phrase) + '"' + how + "</span></li>";
       }).join("") + "</ul>";
+    }
+    r.uncertain.forEach(function (u, i) {
+      html += '<div class="interp-ask"><div>“' + esc(u.phrase) + '” — 혹시 이런 뜻인가요?</div><div class="ask-buttons">' +
+        u.candidates.map(function (c) { return '<button type="button" data-ask="' + i + '" data-intent="' + esc(c.id) + '">' + esc(c.meaning.replace(/^(.*)$/, "$1")) + "</button>"; }).join("") +
+        '<button type="button" class="none" data-ask="' + i + '" data-intent="none">해당 없음</button></div></div>';
+    });
+    if (r.noProduct.length) {
+      html += '<div class="interp-noproduct">아직 상품이 없어서 추천하지 못하는 요청: ' + r.noProduct.map(function (n) { return "<b>" + esc(n.meaning) + "</b>"; }).join(", ") +
+        '<div class="hint">지금 상품 데이터(가구·소품 153개)에는 없는 종류예요.</div></div>';
+    }
+    if (r.negated.length) {
+      html += '<div class="interp-negated">부정으로 이해해서 반영하지 않았어요: ' + r.negated.map(function (n) { return "“" + esc(n.phrase) + "”"; }).join(", ") + "</div>";
     }
     if (r.unknown.length) {
       html += '<div class="interp-unknown">반영하지 못한 표현: ' + r.unknown.map(function (u) { return "“" + esc(u) + "”"; }).join(", ") +
-        '<div class="hint">지금은 정해 둔 단어(예: 어두워요, 좁아요, 공부, 수납, 가성비)로 이해해서 일부 표현은 반영하지 못해요. 다른 말로 풀어 쓰면 반영될 수 있어요.</div></div>';
+        '<div class="hint">글을 이해하는 방법에는 한계가 있어요(정해 둔 단어와 비슷한 표현만 알아봐요). 위의 \'아쉬운 점\'에서 골라 주시거나, 다른 말로 풀어 쓰면 반영될 수 있어요.</div></div>';
     }
     $("#interpret").innerHTML = html;
+  }
+
+  function bindInterpretation() {
+    $("#freeText").addEventListener("input", function () { state.choices = {}; renderInterpretation(); });
+    $("#interpret").addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (!b || b.dataset.ask === undefined) return;
+      state.choices[state.asking[+b.dataset.ask]] = b.dataset.intent;
+      renderInterpretation();
+    });
   }
 
   // ---- 3. 추천 상품 고르기
@@ -150,7 +175,7 @@
     // 체크 항목 하나가 여러 카테고리를 뜻할 수 있어(예: 수납 가구 = 선반, 수납장) 쉼표로 이어 둔 값을 펼친다
     state.owned = [];
     Array.prototype.forEach.call(document.querySelectorAll("#ownedChecks input:checked"), function (c) { state.owned = state.owned.concat(c.value.split(",")); });
-    renderInterpretation();
+    renderInterpretation();   // 현재 글과 되묻기 답으로 다시 해석
     var chosen = state.moods.filter(function (m) { return state.picks.indexOf(m.id) >= 0; });
     var options = Agent.styleOptionsFromMoods(chosen).concat(selectedOptions(), Agent.optionsFromText(state.interp));
     state.room = roomValue();
@@ -196,7 +221,9 @@
     var d = state.diagnosis, r = state.interp;
     var notes = Agent.constraintNotes(state.items, { owned: state.owned, diagnosis: d, room: state.room });
     if (r.matches.length) notes.push("직접 적으신 내용에서 " + r.matches.length + "가지를 반영했어요: " + r.matches.map(function (m) { return m.meaning; }).join(", ") + ".");
-    if (r.unknown.length) notes.push("반영하지 못한 표현: " + r.unknown.map(function (u) { return "“" + u + "”"; }).join(", ") + " (정해 둔 단어로만 이해해서 일부는 반영하지 못해요).");
+    if (r.noProduct.length) notes.push("아직 상품이 없어서 추천하지 못하는 요청: " + r.noProduct.map(function (n) { return n.meaning; }).join(", ") + ".");
+    var notUnderstood = r.unknown.concat(r.uncertain.map(function (u) { return u.phrase; }));
+    if (notUnderstood.length) notes.push("반영하지 못한 표현: " + notUnderstood.map(function (u) { return "“" + u + "”"; }).join(", ") + " (글은 정해 둔 단어와 비슷한 표현만 이해해서 일부는 반영하지 못해요).");
     $("#diag").innerHTML = '<div class="summary"><b>진단 결과: ' + esc(d.primary) + "</b>" + (d.secondary ? " (보조: " + esc(d.secondary) + ")" : "") +
       '<div class="hint">고르신 방 분위기 ' + state.picks.length + "개를 보고 취향을 추정했어요. 추천 순서는 스타일 일치, 아쉬운 점으로 답하거나 적으신 항목, 생활에 먼저 필요한 정도(필요도), 방 크기를 점수로 합산해 정했어요. 가격은 실제 판매가가 아니라 참고용 추정값이에요.</div>" +
       notes.map(function (t) { return '<div class="note">' + esc(t) + "</div>"; }).join("") + "</div>";
@@ -294,15 +321,15 @@
   // ---- 시작
   function init() {
     bindStep1(); renderQuestions(); bindMood(); bindStep3(); bindStep4();
-    $("#freeText").addEventListener("input", renderInterpretation);
+    bindInterpretation();
     $("#back1").addEventListener("click", function () { showStep(1); });
     $("#to3").addEventListener("click", runAgent);
     $("#back2").addEventListener("click", function () { showStep(2); });
     $("#to4").addEventListener("click", startOverlay);
     $("#back3").addEventListener("click", function () { showStep(3); });
     showStep(1);
-    Promise.all([fetch("data/items.json?v=20261027e").then(function (r) { return r.json(); }),
-                 fetch("data/moods.json?v=20261027e").then(function (r) { return r.json(); })])
+    Promise.all([fetch("data/items.json?v=20261027f").then(function (r) { return r.json(); }),
+                 fetch("data/moods.json?v=20261027f").then(function (r) { return r.json(); })])
       .then(function (res) { state.items = res[0]; state.moods = res[1]; renderMood(); })
       .catch(function () { $("#loadError").hidden = false; $("#to2").disabled = true; });
   }

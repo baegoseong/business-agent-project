@@ -1,5 +1,6 @@
 // 실행: jsc tools/test_agent.js  (프로젝트 루트에서. macOS 기본 JavaScriptCore 사용, Node 불필요)
 load("agent/agent.js");
+load("tools/text_baseline.js");
 var items = JSON.parse(readFile("data/items.json"));
 var byId = {}; items.forEach(function (i) { byId[i.id] = i; });
 var failures = 0;
@@ -171,6 +172,45 @@ var sgText = Agent.suggest(items, { owned: [], diagnosis: dxText });
 var lampOpt = sgText.filter(function (g) { return g.category === "조명"; })[0].options[0];
 check("글 해석: 쓴 문장이 근거 문구로 그대로 인용됨('적어 주셔서')", lampOpt.reasons.join("|").indexOf("'방이 어두워서 공부가 안 돼요'라고 적어 주셔서") >= 0, lampOpt.reasons[0]);
 check("글 해석: 쓴 내용에 맞는 카테고리(조명, 책상, 의자)가 상위에 오름", ["조명", "책상", "의자"].every(function (c) { return sgText.slice(0, 4).some(function (g) { return g.category === c; }); }));
+
+// 11-2. 글 해석 고도화: 부정, 구체적인 말 우선, 상품이 없는 종류, 띄어쓰기, 유사도와 되묻기
+var neg = Agent.interpretText("방이 어둡진 않아요");
+check("글 해석: 부정 표현은 필요로 읽지 않고 따로 알려 줌", neg.matches.length === 0 && neg.negated.length === 1);
+var partNeg = Agent.interpretText("조명은 충분한데 앉을 곳이 부족해요");
+check("글 해석: 문장의 한 부분만 부정(조명은 충분, 앉을 곳은 부족)", ids("조명은 충분한데 앉을 곳이 부족해요").join() === "seat" && partNeg.negated.length === 1);
+check("글 해석: '침대는 필요 없고 책상만'에서 침대는 빼고 책상 고민만 반영", ids("침대는 필요 없고 책상만 있으면 돼요").join() === "study");
+check("글 해석: 책장을 직접 말하면 일반 수납(4종)이 아니라 선반만", (function () { var m = Agent.interpretText("책장이 필요한데 못은 박기 싫어요").matches; var cats = []; m.forEach(function (x) { cats = cats.concat(x.needs); });
+  return unique(cats).join() === "선반" && m.some(function (x) { return x.constraints.noWall; }); })());
+check("글 해석: 일반 수납 고민은 수납 4종", Agent.optionsFromText(Agent.interpretText("짐이 많아서 방이 어질러져요"))[0].needs.length === 4);
+var np = Agent.interpretText("암막 커튼이 필요해요");
+check("글 해석: 우리 상품에 없는 종류(커튼)는 추천에 쓰지 않고 '상품이 없다'고 알려 줌", np.noProduct.length === 1 && np.noProduct[0].id === "np_curtain" && Agent.optionsFromText(np).length === 0);
+check("글 해석: 상품이 없는 종류의 말이 다른 고민을 엉뚱하게 만들지 않음(빈백 소파, 압축봉으로 정리)", ids("빈백 소파 사고 싶어요").length === 0 && ids("압축봉이랑 후크로 정리하고 싶어요").length === 0);
+check("글 해석: 띄어쓰기 없이 써도 이해함", ids("방이너무어두워요").join() === "light" && ids("옷 걸이가 있었으면").length === 0);
+check("글 해석: 벽을 쓰고 싶다는 말은 벽·세로 수납으로 이해함", ids("서랍장 놓을 자리는 없어서 벽을 쓰고 싶어요").join() === "vertical");
+var ask = Agent.interpretText("집에 사람이 오면 서 있어야 해요");
+check("글 해석: 키워드가 없고 비슷한 표현이면 바로 반영하지 않고 되묻기 후보를 줌", ask.matches.length === 0 && ask.uncertain.length === 1 && ask.uncertain[0].candidates[0].id === "seat" && ask.uncertain[0].candidates.length <= 3, JSON.stringify(ask.uncertain[0] && ask.uncertain[0].candidates[0]));
+var chosen = {}; chosen[ask.uncertain[0].phrase] = "seat";
+var rc = Agent.interpretText("집에 사람이 오면 서 있어야 해요", { choices: chosen });
+check("글 해석: 되묻기에 답하면 그 뜻으로 반영하고 '직접 확인'으로 표시", rc.matches.length === 1 && rc.matches[0].id === "seat" && rc.matches[0].via === "confirmed" && rc.uncertain.length === 0);
+var none = {}; none[ask.uncertain[0].phrase] = "none";
+check("글 해석: '해당 없음'이라고 답하면 반영하지 않음", Agent.interpretText("집에 사람이 오면 서 있어야 해요", { choices: none }).matches.length === 0);
+check("글 해석: 전혀 관련 없는 문장은 되묻지 않고 '이해하지 못함'", (function () { var r = Agent.interpretText("우리 집 강아지가 너무 귀여워요"); return r.matches.length === 0 && r.uncertain.length === 0 && r.unknown.length === 1; })());
+check("글 해석: 유사도를 끄면(규칙만) 되묻기 없이 이해하지 못함으로 처리", Agent.interpretText("집에 사람이 오면 서 있어야 해요", { similarity: false }).unknown.length === 1);
+check("글 해석: 이상한 입력(빈 값, 이모지, 아주 긴 글)에도 오류 없이 처리", (function () {
+  try { Agent.interpretText(undefined); Agent.interpretText(""); Agent.interpretText("ㅋㅋㅋㅋ 😀😀"); Agent.interpretText(new Array(500).join("방이 어두워요 ")); return true; } catch (e) { return false; } })());
+
+// 11-3. 평가 회귀: 새 방식이 기존 규칙(기준선)보다 점수가 높아야 한다. 정확한 값과 한계는 tools/eval_text.js와 README에 있다.
+var evalData = JSON.parse(readFile("tools/text_eval.json"));
+function evalTags(g) { return g.cats.map(function (c) { return "c:" + c; }).concat(g.cons.map(function (k) { return "k:" + k; }), g.styles.map(function (s) { return "s:" + s; }), g.np.map(function (n) { return "n:" + n; })); }
+function resTags(r) { var o = {}; (r.matches || []).forEach(function (m) { (m.needs || []).forEach(function (c) { o["c:" + c] = 1; }); Object.keys(m.constraints || {}).forEach(function (k) { if (m.constraints[k]) o["k:" + k] = 1; }); Object.keys(m.styles || {}).forEach(function (s) { if (m.styles[s] > 0) o["s:" + s] = 1; }); }); (r.noProduct || []).forEach(function (m) { o["n:" + m.id.replace(/^np_/, "")] = 1; }); return Object.keys(o); }
+function f1Of(set, fn) { var tp = 0, fp = 0, fn_ = 0; set.forEach(function (g) { var gold = evalTags(g), p = resTags(fn(g.t)); var hit = p.filter(function (x) { return gold.indexOf(x) >= 0; }).length; tp += hit; fp += p.length - hit; fn_ += gold.length - hit; });
+  var pr = tp + fp ? tp / (tp + fp) : 1, rc2 = tp + fn_ ? tp / (tp + fn_) : 1; return pr + rc2 ? 2 * pr * rc2 / (pr + rc2) : 0; }
+["dev", "test", "fresh"].forEach(function (name) {
+  var base = f1Of(evalData[name], function (x) { return BaselineText.interpret(x); }), now = f1Of(evalData[name], function (x) { return Agent.interpretText(x); });
+  check("글 해석 평가(" + name + "): 새 방식의 F1이 기존 규칙보다 10점 이상 높음", now >= base + 0.10, "기존 " + Math.round(base * 100) + "% -> 새 방식 " + Math.round(now * 100) + "%");
+});
+var paraBase = f1Of(evalData.paraphrase, function (x) { return BaselineText.interpret(x); }), paraNow = f1Of(evalData.paraphrase, function (x) { return Agent.interpretText(x); });
+check("글 해석 평가(키워드 없는 돌려 말하기): 기존 규칙보다 나빠지지 않음(개선이 작다는 한계는 README에 기록)", paraNow >= paraBase, "기존 " + Math.round(paraBase * 100) + "% -> 새 방식 " + Math.round(paraNow * 100) + "%");
 
 // 12. 좁은 방(compact)과 가성비(frugal): 같은 종류 안에서 작거나 저렴한 상품을 앞에 둔다
 var dxCompact = Agent.diagnose(Agent.optionsFromText(Agent.interpretText("방이 좁아요")));
