@@ -1,0 +1,139 @@
+[
+ {
+  "id": "modern",
+  "title": "모던",
+  "subtitle": "정돈되고 세련된 도시적인 방",
+  "image": "assets/moods/modern.jpg",
+  "styles": {
+   "모던": 3,
+   "미니멀": 1
+  },
+  "credit": {
+   "source": "Pexels",
+   "photographer": "Max Vakhtbovych",
+   "title": "Solid leather sofa in lounge with rug",
+   "url": "https://www.pexels.com/photo/solid-leather-sofa-in-lounge-with-rug-6933860/",
+   "license": "Pexels License"
+  }
+ },
+ {
+  "id": "minimal",
+  "title": "미니멀·심플",
+  "subtitle": "군더더기 없이 밝고 깔끔한 방",
+  "image": "assets/moods/minimal.jpg",
+  "styles": {
+   "미니멀": 3,
+   "모던": 1
+  },
+  "credit": {
+   "source": "Pexels",
+   "photographer": "juliane Monari",
+   "title": "Minimalist Living Room with Indoor Plants",
+   "url": "https://www.pexels.com/photo/minimalist-living-room-with-indoor-plants-29696169/",
+   "license": "Pexels License"
+  }
+ },
+ {
+  "id": "natural",
+  "title": "내추럴",
+  "subtitle": "나무와 자연 소재가 편안한 방",
+  "image": "assets/moods/natural.jpg",
+  "styles": {
+   "우드": 3,
+   "따뜻한": 1
+  },
+  "credit": {
+   "source": "Pexels",
+   "photographer": "Mateusz Pielech",
+   "title": "Modern Minimalist Living Room Interior with Stylish Sofa",
+   "url": "https://www.pexels.com/photo/modern-minimalist-living-room-interior-with-stylish-sofa-29252626/",
+   "license": "Pexels License"
+  }
+ },
+ {
+  "id": "nordic",
+  "title": "북유럽",
+  "subtitle": "밝고 따뜻한 화이트 톤의 방",
+  "image": "assets/moods/nordic.jpg",
+  "styles": {
+   "우드": 3,
+   "미니멀": 2,
+   "따뜻한": 1
+  },
+  "credit": {
+   "source": "Pexels",
+   "photographer": "Taryn Elliott",
+   "title": "Scandinavian Interior of a Living Room",
+   "url": "https://www.pexels.com/photo/scandinavian-interior-of-a-living-room-9565782/",
+   "license": "Pexels License"
+  }
+ },
+ {
+  "id": "vintage",
+  "title": "빈티지·레트로",
+  "subtitle": "세월이 느껴지는 개성 있는 방",
+  "image": "assets/moods/vintage.jpg",
+  "styles": {
+   "따뜻한": 3,
+   "우드": 1
+  },
+  "credit": {
+   "source": "Pexels",
+   "photographer": "Ebrar Karabulut",
+   "title": "Living Room in Retro Design",
+   "url": "https://www.pexels.com/photo/living-room-in-retro-design-16764180/",
+   "license": "Pexels License"
+  }
+ },
+ {
+  "id": "lovely",
+  "title": "러블리·로맨틱",
+  "subtitle": "부드럽고 사랑스러운 침실",
+  "image": "assets/moods/lovely.jpg",
+  "styles": {
+   "따뜻한": 3,
+   "미니멀": 1
+  },
+  "credit": {
+   "source": "Pexels",
+   "photographer": "Max Vakhtbovych",
+   "title": "Elegant interior of cozy bedroom",
+   "url": "https://www.pexels.com/photo/elegant-interior-of-cozy-bedroom-6207825/",
+   "license": "Pexels License"
+  }
+ },
+ {
+  "id": "industrial",
+  "title": "인더스트리얼",
+  "subtitle": "벽돌과 금속이 있는 거친 매력의 방",
+  "image": "assets/moods/industrial.jpg",
+  "styles": {
+   "모던": 3,
+   "우드": 1
+  },
+  "credit": {
+   "source": "Pexels",
+   "photographer": "Max Vakhtbovych",
+   "title": "Interior of modern apartment with brick wall",
+   "url": "https://www.pexels.com/photo/interior-of-modern-apartment-with-brick-wall-6447385/",
+   "license": "Pexels License"
+  }
+ },
+ {
+  "id": "french",
+  "title": "프렌치·프로방스",
+  "subtitle": "몰딩과 장식 거울이 있는 화사한 방",
+  "image": "assets/moods/french.jpg",
+  "styles": {
+   "따뜻한": 3,
+   "미니멀": 1
+  },
+  "credit": {
+   "source": "Pexels",
+   "photographer": "Eugenia Remark",
+   "title": "Modern French Style Bedroom",
+   "url": "https://www.pexels.com/photo/modern-french-style-bedroom-14426078/",
+   "license": "Pexels License"
+  }
+ }
+]
