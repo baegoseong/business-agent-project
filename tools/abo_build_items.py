@@ -2,6 +2,7 @@
 출력: data/items.json, assets/products/*.webp
 가격은 ABO에 없으므로 카테고리별 기준가와 크기·키워드로 '추정'한 참고 가격이다."""
 import json, math, re, shutil
+from mount_rules import mount_of
 from pathlib import Path
 from PIL import Image
 
@@ -91,7 +92,7 @@ for it in cands:
     items.append({"id": it["item_id"], "name": short, "brand": brand, "fullName": it["name_ko"], "category": cat,
         "price": price(cat, it), "priceBasis": "estimate",
         "size": {"w": fw, "d": fd, "h": fh}, "view": "top" if cat == "러그" else "front",
-        "aspect": round(aspect, 3), "styles": styles(it), "noDrill": cfg[4] and "벽걸이" not in it["name_ko"], "priority": cfg[3],
+        "aspect": round(aspect, 3), "styles": styles(it), "noDrill": mount_of(cat, it["name_ko"]) != "wall", "mount": mount_of(cat, it["name_ko"]), "priority": cfg[3],
         "image": f"assets/products/{it['item_id']}.webp",
         "source": {"name": "Amazon Berkeley Objects", "license": "CC BY 4.0", "itemId": it["item_id"]}})
 

@@ -17,7 +17,8 @@
 | `view` | `front` \| `top` | 사진 시점. `top`은 러그처럼 위에서 찍은 사진 |
 | `aspect` | number | 이미지의 세로/가로 비율. 사진 위에 그릴 때 이 비율을 쓴다 |
 | `styles` | string[] | 미니멀, 모던, 우드, 따뜻한 중 1~3개 (이름의 키워드로 자동 분류) |
-| `noDrill` | boolean | 못·타공 없이 설치 가능 여부. 벽걸이 상품은 `false` |
+| `mount` | `wall` \| `hang` \| `place` | 설치 방식. `wall`=벽에 걸거나 붙임(못·타공 필요 가능), `hang`=옷장 봉 등에 걸어 씀(벽에 못 불필요), `place`=바닥·탁자 위에 놓음 |
+| `noDrill` | boolean | `mount`에서 계산한 값. `wall`일 때만 `false` |
 | `priority` | 1~3 | 필요도. 1이 가장 먼저 채울 항목 |
 | `alternativeTo` | string (선택) | 같은 카테고리에서 **더 비싼** 상품의 id. 예산 초과 시 저가 대체품이 된다 |
 | `image` | string | 투명 WebP 경로 |
@@ -27,7 +28,8 @@
 1. `abo_candidates.py`: ABO 메타데이터에서 자취방에 맞는 후보를 걸러 썸네일을 받는다.
 2. `abo_images.py`: 후보의 원본 이미지를 개별로 받는다.
 3. `abo_cutout.py`: 흰 배경(가장자리와 가구 안쪽에 갇힌 부분)을 지워 투명 WebP로 만들고 실패를 표시한다.
-4. `abo_build_items.py`: 가격·스타일·필요도·못 필요 여부·저가 대체 관계를 붙여 `data/items.json`을 만든다.
+4. `mount_rules.py`: 이름과 카테고리로 설치 방식(`mount`)을 정한다. 실행하면 `data/items.json`에 반영한다.
+5. `abo_build_items.py`: 가격·스타일·필요도·못 필요 여부·저가 대체 관계를 붙여 `data/items.json`을 만든다.
 
 원본 데이터와 중간 결과는 `data/raw/`(git 제외)에 있다.
 

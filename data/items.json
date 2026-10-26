@@ -18,6 +18,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B00MHUV924.webp",
   "source": {
@@ -45,6 +46,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B06Y5QNWJQ.webp",
   "source": {
@@ -73,6 +75,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B00MHUT7AU.webp",
   "source": {
@@ -101,6 +104,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B06Y5SNJRS.webp",
   "source": {
@@ -129,6 +133,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B00MHUV0NC.webp",
   "source": {
@@ -157,6 +162,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B01LTI1KFU.webp",
   "source": {
@@ -186,6 +192,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B0829LLTHK.webp",
   "source": {
@@ -215,6 +222,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B07ZPG5CL6.webp",
   "source": {
@@ -245,6 +253,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B07PPNNCM2.webp",
   "source": {
@@ -273,6 +282,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "hang",
   "priority": 1,
   "image": "assets/products/B07TTCS792.webp",
   "source": {
@@ -301,6 +311,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "hang",
   "priority": 1,
   "image": "assets/products/B07TS8BLJ5.webp",
   "source": {
@@ -329,6 +340,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "hang",
   "priority": 1,
   "image": "assets/products/B07FQKSWZJ.webp",
   "source": {
@@ -359,6 +371,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 1,
   "image": "assets/products/B07XKC5BCW.webp",
   "source": {
@@ -387,6 +400,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B07B7JY9C5.webp",
   "source": {
@@ -415,6 +429,7 @@
    "우드"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 1,
   "image": "assets/products/B07B8FHTJ4.webp",
   "source": {
@@ -444,6 +459,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B07TSTJM5G.webp",
   "source": {
@@ -472,6 +488,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 1,
   "image": "assets/products/B07TTY3BYH.webp",
   "source": {
@@ -500,6 +517,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B0828FBDV7.webp",
   "source": {
@@ -527,6 +545,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07DBJJ5R9.webp",
   "source": {
@@ -555,6 +574,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07MF1SN4F.webp",
   "source": {
@@ -583,6 +603,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07QJL73XD.webp",
   "source": {
@@ -611,6 +632,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07MBFDJQ3.webp",
   "source": {
@@ -640,6 +662,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B075Z8THZJ.webp",
   "source": {
@@ -668,6 +691,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07KXFJ12M.webp",
   "source": {
@@ -696,6 +720,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07TYTPQ34.webp",
   "source": {
@@ -725,6 +750,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B082BLFMRC.webp",
   "source": {
@@ -753,6 +779,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07QJWXMXZ.webp",
   "source": {
@@ -782,6 +809,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B01D7P5BFS.webp",
   "source": {
@@ -811,6 +839,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07MNYTYR4.webp",
   "source": {
@@ -841,6 +870,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07Q1SBY26.webp",
   "source": {
@@ -868,6 +898,7 @@
    "우드"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07B7DKRW4.webp",
   "source": {
@@ -897,6 +928,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07GFL6RF5.webp",
   "source": {
@@ -926,6 +958,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07GFWLSS4.webp",
   "source": {
@@ -954,6 +987,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07GFFQZRQ.webp",
   "source": {
@@ -983,6 +1017,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07R1JT4JL.webp",
   "source": {
@@ -1012,6 +1047,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07DW93LJ8.webp",
   "source": {
@@ -1041,6 +1077,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B075Z8629F.webp",
   "source": {
@@ -1070,6 +1107,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B075QMHYVD.webp",
   "source": {
@@ -1098,6 +1136,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07QS8SPCB.webp",
   "source": {
@@ -1127,6 +1166,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07DBB1SD2.webp",
   "source": {
@@ -1157,6 +1197,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B072ZP9XL1.webp",
   "source": {
@@ -1187,6 +1228,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07B4VXXJC.webp",
   "source": {
@@ -1215,6 +1257,7 @@
    "우드"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07NYSHH9W.webp",
   "source": {
@@ -1244,6 +1287,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B001JMUCP6.webp",
   "source": {
@@ -1273,6 +1317,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B074KKMQBG.webp",
   "source": {
@@ -1302,6 +1347,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B0861YKM8S.webp",
   "source": {
@@ -1330,6 +1376,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07K6MBGYH.webp",
   "source": {
@@ -1357,6 +1404,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B071H75K71.webp",
   "source": {
@@ -1385,6 +1433,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B00AZ0QH0M.webp",
   "source": {
@@ -1413,6 +1462,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B086VNNCMZ.webp",
   "source": {
@@ -1442,6 +1492,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07K8W5VSM.webp",
   "source": {
@@ -1470,6 +1521,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07GFRHGV9.webp",
   "source": {
@@ -1499,6 +1551,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07D4BHP6T.webp",
   "source": {
@@ -1527,6 +1580,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07QL8WVPL.webp",
   "source": {
@@ -1556,6 +1610,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 2,
   "image": "assets/products/B07B92C9WT.webp",
   "source": {
@@ -1584,6 +1639,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 2,
   "image": "assets/products/B073WH6N3R.webp",
   "source": {
@@ -1613,6 +1669,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 2,
   "image": "assets/products/B07RQMSP2G.webp",
   "source": {
@@ -1643,6 +1700,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 2,
   "image": "assets/products/B07B8WZQMY.webp",
   "source": {
@@ -1673,6 +1731,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 2,
   "image": "assets/products/B073WHZKB2.webp",
   "source": {
@@ -1702,6 +1761,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 2,
   "image": "assets/products/B073WHB435.webp",
   "source": {
@@ -1732,6 +1792,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07B8FHTL1.webp",
   "source": {
@@ -1759,6 +1820,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07VD8QSKN.webp",
   "source": {
@@ -1787,6 +1849,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07JHV32HX.webp",
   "source": {
@@ -1817,6 +1880,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07B8W8FHF.webp",
   "source": {
@@ -1845,6 +1909,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07JJFFB2B.webp",
   "source": {
@@ -1873,6 +1938,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07VD8QY34.webp",
   "source": {
@@ -1901,6 +1967,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07JGWFXWD.webp",
   "source": {
@@ -1928,6 +1995,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07JGLHLY4.webp",
   "source": {
@@ -1958,6 +2026,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07B8MSPDC.webp",
   "source": {
@@ -1986,6 +2055,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B081FHH4LK.webp",
   "source": {
@@ -2014,6 +2084,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B081FHHB4R.webp",
   "source": {
@@ -2042,6 +2113,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07FQMDZJW.webp",
   "source": {
@@ -2071,6 +2143,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07847Y5BG.webp",
   "source": {
@@ -2098,6 +2171,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07QZRPGF8.webp",
   "source": {
@@ -2126,6 +2200,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07QWLFJ11.webp",
   "source": {
@@ -2155,6 +2230,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07TVMZ5QP.webp",
   "source": {
@@ -2184,6 +2260,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B085LL297P.webp",
   "source": {
@@ -2212,6 +2289,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B08742QQTY.webp",
   "source": {
@@ -2241,6 +2319,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07TVN114C.webp",
   "source": {
@@ -2269,6 +2348,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 2,
   "image": "assets/products/B07TWQTVXL.webp",
   "source": {
@@ -2299,6 +2379,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B0735THVQN.webp",
   "source": {
@@ -2327,6 +2408,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B0735XMSZ8.webp",
   "source": {
@@ -2356,6 +2438,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07TL23T69.webp",
   "source": {
@@ -2383,6 +2466,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B074VLRP5T.webp",
   "source": {
@@ -2411,6 +2495,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B074VMF3L5.webp",
   "source": {
@@ -2440,6 +2525,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07BMTXRR1.webp",
   "source": {
@@ -2468,6 +2554,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07JKJKH43.webp",
   "source": {
@@ -2496,6 +2583,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07JLZJ9JM.webp",
   "source": {
@@ -2525,6 +2613,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07JKJKJCC.webp",
   "source": {
@@ -2554,6 +2643,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07JL5PT1J.webp",
   "source": {
@@ -2582,6 +2672,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B074VKVP9L.webp",
   "source": {
@@ -2610,6 +2701,7 @@
    "우드"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B079V7M9K4.webp",
   "source": {
@@ -2639,6 +2731,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B076VF41R6.webp",
   "source": {
@@ -2666,6 +2759,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B076VF43GG.webp",
   "source": {
@@ -2694,6 +2788,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B07QWLD4BJ.webp",
   "source": {
@@ -2722,6 +2817,7 @@
    "모던"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B07R1XZ3YD.webp",
   "source": {
@@ -2750,6 +2846,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B076VF41DV.webp",
   "source": {
@@ -2778,6 +2875,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B07QYMTMRH.webp",
   "source": {
@@ -2806,6 +2904,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B07R2YJD7B.webp",
   "source": {
@@ -2834,6 +2933,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B082DS95H3.webp",
   "source": {
@@ -2864,6 +2964,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B073P648NH.webp",
   "source": {
@@ -2893,6 +2994,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B073P5Y9TC.webp",
   "source": {
@@ -2921,6 +3023,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B073NZPPC9.webp",
   "source": {
@@ -2949,6 +3052,7 @@
    "모던"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B075HWJ43W.webp",
   "source": {
@@ -2977,6 +3081,7 @@
    "모던"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B075HWTLKF.webp",
   "source": {
@@ -3006,6 +3111,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B073P15S5Z.webp",
   "source": {
@@ -3034,6 +3140,7 @@
    "모던"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B075HWJ43H.webp",
   "source": {
@@ -3063,6 +3170,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B073P1BVBT.webp",
   "source": {
@@ -3091,6 +3199,7 @@
    "모던"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B075HXBCKQ.webp",
   "source": {
@@ -3119,6 +3228,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B075YMJBZ8.webp",
   "source": {
@@ -3148,6 +3258,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B073P23TXY.webp",
   "source": {
@@ -3178,6 +3289,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B073P6BG6M.webp",
   "source": {
@@ -3208,6 +3320,7 @@
    "따뜻한"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B075YL2S65.webp",
   "source": {
@@ -3237,6 +3350,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B073NZPN4S.webp",
   "source": {
@@ -3265,6 +3379,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B073P1H78F.webp",
   "source": {
@@ -3294,6 +3409,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B075YLKDMG.webp",
   "source": {
@@ -3322,6 +3438,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07QC8CFCY.webp",
   "source": {
@@ -3350,6 +3467,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07QD6ZV9Q.webp",
   "source": {
@@ -3379,6 +3497,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075HXLWTN.webp",
   "source": {
@@ -3409,6 +3528,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075HWX46K.webp",
   "source": {
@@ -3438,6 +3558,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075HR4ZDB.webp",
   "source": {
@@ -3466,6 +3587,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B078JGRLCJ.webp",
   "source": {
@@ -3496,6 +3618,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07B8PXTSY.webp",
   "source": {
@@ -3526,6 +3649,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B078JJDPR2.webp",
   "source": {
@@ -3556,6 +3680,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07QHL81RH.webp",
   "source": {
@@ -3585,6 +3710,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07QJM1BV2.webp",
   "source": {
@@ -3613,6 +3739,7 @@
    "미니멀"
   ],
   "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B07S9FMW26.webp",
   "source": {
@@ -3641,6 +3768,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07QHJPJFX.webp",
   "source": {
@@ -3669,7 +3797,8 @@
    "모던",
    "미니멀"
   ],
-  "noDrill": true,
+  "noDrill": false,
+  "mount": "wall",
   "priority": 3,
   "image": "assets/products/B075HX5PQ7.webp",
   "source": {
@@ -3698,6 +3827,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075HXHKVF.webp",
   "source": {
@@ -3725,6 +3855,7 @@
    "우드"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B00AZ7SL40.webp",
   "source": {
@@ -3752,6 +3883,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B073G82HBV.webp",
   "source": {
@@ -3780,6 +3912,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B073G947XM.webp",
   "source": {
@@ -3808,6 +3941,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07DBGHYG6.webp",
   "source": {
@@ -3836,6 +3970,7 @@
    "우드"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07DBB1S8N.webp",
   "source": {
@@ -3864,6 +3999,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07DBB1T6Z.webp",
   "source": {
@@ -3892,6 +4028,7 @@
    "우드"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07DBDTCTY.webp",
   "source": {
@@ -3920,6 +4057,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07DBHFDSQ.webp",
   "source": {
@@ -3949,6 +4087,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07L6KM74G.webp",
   "source": {
@@ -3976,6 +4115,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075X5TMZ1.webp",
   "source": {
@@ -4005,6 +4145,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07DBF1BC9.webp",
   "source": {
@@ -4033,6 +4174,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075X4PTJF.webp",
   "source": {
@@ -4062,6 +4204,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07B7BDFQ4.webp",
   "source": {
@@ -4091,6 +4234,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B082QD1HY4.webp",
   "source": {
@@ -4119,6 +4263,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075X5443L.webp",
   "source": {
@@ -4147,6 +4292,7 @@
    "모던"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07HPSSN7H.webp",
   "source": {
@@ -4174,6 +4320,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B073ZPDT1R.webp",
   "source": {
@@ -4202,6 +4349,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07G2H671X.webp",
   "source": {
@@ -4231,6 +4379,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07B4MN2R3.webp",
   "source": {
@@ -4261,6 +4410,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075X3SHW4.webp",
   "source": {
@@ -4290,6 +4440,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075X4PRPZ.webp",
   "source": {
@@ -4319,6 +4470,7 @@
    "따뜻한"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B075X4F4ST.webp",
   "source": {
@@ -4347,6 +4499,7 @@
    "미니멀"
   ],
   "noDrill": true,
+  "mount": "place",
   "priority": 3,
   "image": "assets/products/B07SHYPZ8D.webp",
   "source": {
