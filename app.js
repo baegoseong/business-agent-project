@@ -124,14 +124,30 @@
   }
 
   // 직접 쓴 글을 어떻게 이해했는지 바로 보여 준다. 애매한 문장은 "이런 뜻인가요?"라고 되묻고, 못 알아들은 문장과 우리 상품에 없는 종류는 숨기지 않고 알려 준다.
-  function currentInterp() { return Agent.interpretText($("#freeText").value, { choices: state.choices }); }
+  function currentInterp() {
+    var text = $("#freeText").value, llm = LLM.cached(text);
+    return llm ? Agent.interpretFromLLM(llm) : Agent.interpretText(text, { choices: state.choices });
+  }
+
+  // 로컬 서버에 키가 있으면 글을 LLM으로도 읽는다. 호출 한도가 작아 입력을 멈춘 뒤 한 번만 부르고, 실패하면 규칙 방식 결과를 그대로 쓴다.
+  var llmTimer = null;
+  function askLLM(text) {
+    return LLM.interpret(text, Agent.intentCatalog()).then(function (r) { if ($("#freeText").value === text) renderInterpretation(); return r; });
+  }
+  function llmStatusHtml() {
+    var t = $("#freeText").value;
+    if (!LLM.isAvailable() || !t.trim()) return "";
+    if (LLM.cached(t)) return '<div class="interp-llm">AI(' + esc(LLM.model()) + ')가 읽고 이해한 결과예요.</div>';
+    if (LLM.failed(t)) return '<div class="interp-llm">AI 해석에 실패해서 규칙 방식으로 이해했어요.</div>';
+    return '<div class="interp-llm">AI가 글을 읽는 중이에요… (그동안은 규칙 방식 결과예요)</div>';
+  }
 
   function renderInterpretation() {
-    var r = state.interp = currentInterp(), html = "";
+    var r = state.interp = currentInterp(), html = llmStatusHtml();
     state.asking = r.uncertain.map(function (u) { return u.phrase; });
     if (r.matches.length) {
       html += '<div class="interp-title">이렇게 이해했어요</div><ul class="interp-list">' + r.matches.map(function (m) {
-        var how = m.via === "confirmed" ? " · 직접 확인했어요" : m.via === "similar" ? " · 비슷한 표현으로 이해했어요" : "";
+        var how = m.via === "confirmed" ? " · 직접 확인했어요" : m.via === "similar" ? " · 비슷한 표현으로 이해했어요" : m.via === "llm" ? " · AI가 이해했어요" : "";
         return "<li><b>" + esc(m.meaning) + '</b><span>← "' + esc(m.phrase) + '"' + how + "</span></li>";
       }).join("") + "</ul>";
     }
@@ -149,13 +165,18 @@
     }
     if (r.unknown.length) {
       html += '<div class="interp-unknown">반영하지 못한 표현: ' + r.unknown.map(function (u) { return "“" + esc(u) + "”"; }).join(", ") +
-        '<div class="hint">글을 이해하는 방법에는 한계가 있어요(정해 둔 단어와 비슷한 표현만 알아봐요). 위의 \'아쉬운 점\'에서 골라 주시거나, 다른 말로 풀어 쓰면 반영될 수 있어요.</div></div>';
+        (LLM.cached($("#freeText").value) ? "" : '<div class="hint">글을 이해하는 방법에는 한계가 있어요(정해 둔 단어와 비슷한 표현만 알아봐요). 위의 \'아쉬운 점\'에서 골라 주시거나, 다른 말로 풀어 쓰면 반영될 수 있어요.</div>') + "</div>";
     }
     $("#interpret").innerHTML = html;
   }
 
   function bindInterpretation() {
-    $("#freeText").addEventListener("input", function () { state.choices = {}; renderInterpretation(); });
+    $("#freeText").addEventListener("input", function () {
+      state.choices = {}; renderInterpretation();
+      clearTimeout(llmTimer);
+      var t = $("#freeText").value;
+      if (LLM.isAvailable() && t.trim().length >= 2 && !LLM.settled(t)) llmTimer = setTimeout(function () { askLLM(t); }, 1200);
+    });
     $("#interpret").addEventListener("click", function (e) {
       var b = e.target.closest("button");
       if (!b || b.dataset.ask === undefined) return;
@@ -165,7 +186,17 @@
   }
 
   // ---- 3. 추천 상품 고르기
+  // AI 해석이 켜져 있으면 결과가 올 때까지 잠깐 기다렸다가 진행한다(실패해도 진행)
   function runAgent() {
+    var t = $("#freeText").value;
+    if (!LLM.isAvailable() || !t.trim() || LLM.settled(t) || state.picks.length < MIN_PICKS) return runAgentNow();
+    var btn = $("#to3"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = "AI가 글을 읽는 중…";
+    clearTimeout(llmTimer);
+    askLLM(t).then(function () { btn.disabled = false; btn.textContent = label; runAgentNow(); });
+  }
+
+  function runAgentNow() {
     if (state.picks.length < MIN_PICKS) {
       $("#q-error").textContent = "마음에 드는 방 분위기를 " + MIN_PICKS + "개 이상 골라 주세요."; $("#q-error").hidden = false;
       $("#moodGrid").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -322,6 +353,7 @@
   function init() {
     bindStep1(); renderQuestions(); bindMood(); bindStep3(); bindStep4();
     bindInterpretation();
+    LLM.init().then(renderInterpretation);
     $("#back1").addEventListener("click", function () { showStep(1); });
     $("#to3").addEventListener("click", runAgent);
     $("#back2").addEventListener("click", function () { showStep(2); });

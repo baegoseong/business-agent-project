@@ -233,6 +233,33 @@ var Agent = (function () {
     return out;
   }
 
+  // ---- LLM이 고른 의도 ID를 같은 모양의 해석 결과로 바꾼다 (모델 호출은 agent 밖: llm.js / tools/dev_server.py)
+  // 카탈로그: 모델에게 보여 줄 "고를 수 있는 의도" 목록
+  function intentCatalog() {
+    return INTENTS.map(function (it) { return { id: it.id, kind: it.kind, meaning: it.meaning }; });
+  }
+
+  // clauses: [{ phrase, intents: [의도 id], negated: bool }]. 목록에 없는 id는 버리고, 부정은 규칙 방식과 같게 need/noProduct에만 적용한다.
+  function interpretFromLLM(clauses) {
+    var out = { matches: [], noProduct: [], negated: [], uncertain: [], unknown: [] }, seen = {};
+    (Array.isArray(clauses) ? clauses : []).forEach(function (c) {
+      if (!c || typeof c.phrase !== "string") return;
+      var phrase = c.phrase.trim().slice(0, 120);
+      if (!phrase) return;
+      var ids = (Array.isArray(c.intents) ? c.intents : []).filter(function (id) { return typeof id === "string" && INTENT_BY_ID[id]; });
+      if (!ids.length) { out.unknown.push(phrase); return; }
+      ids.forEach(function (id) {
+        var it = INTENT_BY_ID[id];
+        if (c.negated === true && (it.kind === "need" || it.kind === "noProduct")) { out.negated.push({ phrase: phrase, meaning: it.meaning }); return; }
+        if (seen[id]) return;
+        seen[id] = true;
+        if (it.kind === "noProduct") out.noProduct.push({ id: id, phrase: phrase, meaning: it.meaning });
+        else out.matches.push(matchOf(it, phrase, "llm", 1));
+      });
+    });
+    return out;
+  }
+
   // 해석 결과 -> 진단에 넣을 선택지 (우리 상품이 없는 종류는 추천에 쓰지 않는다)
   function optionsFromText(interp) {
     return interp.matches.map(function (m) {
@@ -561,6 +588,7 @@ var Agent = (function () {
     STYLES: STYLES, FLOOR_CATS: FLOOR_CATS,
     styleOptionsFromMoods: styleOptionsFromMoods,
     interpretText: interpretText, optionsFromText: optionsFromText,
+    intentCatalog: intentCatalog, interpretFromLLM: interpretFromLLM,
     diagnose: diagnose, footprint: footprint, floorBudget: floorBudget, fitOf: fitOf,
     suggest: suggest, recommend: recommend, constraintNotes: constraintNotes
   };

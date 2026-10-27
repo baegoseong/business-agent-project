@@ -65,3 +65,19 @@ var SET_LABEL = { dev: "튜닝용(dev)", test: "검증용(test, 규칙을 쓸 �
     if (VERBOSE) r.wrong.forEach(function (w) { print("      ✗ " + w.t + "  놓침:" + w.missing.join(",") + "  잘못:" + w.extra.join(",")); });
   });
 });
+
+// ---- LLM 해석(tools/eval_llm_collect.py 가 모델 응답을 모아 둔 tools/llm_outputs.json 이 있을 때만)
+// 같은 문장만 골라 규칙 방식(A+B)과 나란히 비교한다. 응답이 없는 문장은 제외한다.
+var llmOut = null;
+try { llmOut = JSON.parse(readFile("tools/llm_outputs.json")); } catch (e) { llmOut = null; }
+if (llmOut) {
+  print("\n== LLM 해석 (모델: " + (llmOut.__model || "?") + ", 모은 응답이 있는 문장만)");
+  ["dev", "test", "fresh", "paraphrase"].forEach(function (setName) {
+    var sub = data[setName].filter(function (g) { return llmOut.outputs && llmOut.outputs[g.t]; });
+    if (!sub.length) return;
+    var rules = evaluate(sub, function (g) { return { tags: resultTags(Agent.interpretText(g.t)) }; });
+    var llm = evaluate(sub, function (g) { return { tags: resultTags(Agent.interpretFromLLM(llmOut.outputs[g.t])) }; });
+    print("  " + setName + " " + sub.length + "문장  규칙(A+B) F1 " + pct(rules.f1) + "  →  LLM F1 " + pct(llm.f1) + " (정밀도 " + pct(llm.precision) + " / 재현율 " + pct(llm.recall) + " / 전체 정답 " + pct(llm.exact) + ")");
+    if (VERBOSE) llm.wrong.forEach(function (w) { print("      ✗ " + w.t + "  놓침:" + w.missing.join(",") + "  잘못:" + w.extra.join(",")); });
+  });
+}

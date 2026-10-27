@@ -273,5 +273,24 @@ check("방 크기: 방 크기를 어떻게 계산했는지 설명함", Agent.con
 // 9. 데이터 규모
 check("데이터: 150개 안팎의 상품과 20개 이상의 카테고리", items.length >= 150 && allCats.length >= 20, items.length + "개 / " + allCats.length + "개");
 
+
+// ---- LLM 결과 어댑터(모델 호출 없이, 모델이 돌려준 JSON을 받는 부분만)
+var cat = Agent.intentCatalog();
+check("LLM: tools/intent_catalog.json 이 현재 의도 목록과 같음(수집 스크립트가 씀)", readFile("tools/intent_catalog.json").trim() === JSON.stringify(cat));
+check("LLM: 의도 목록에 id·종류·뜻이 있음", cat.length > 20 && cat.every(function (c) { return c.id && c.kind && c.meaning; }));
+var L = Agent.interpretFromLLM([
+  { phrase: "해가 지면 방 안이 안 보여요", intents: ["light"], negated: false },
+  { phrase: "수납은 충분해요", intents: ["storage"], negated: true },
+  { phrase: "에어컨이 필요해요", intents: ["np_appliance"], negated: false },
+  { phrase: "아무 말", intents: [], negated: false },
+  { phrase: "목록에 없는 id", intents: ["made_up_id"], negated: false }
+]);
+check("LLM: 의도 id를 규칙 방식과 같은 모양으로 변환", L.matches.length === 1 && L.matches[0].id === "light" && L.matches[0].via === "llm" && L.matches[0].needs.indexOf("조명") >= 0);
+check("LLM: 부정은 반영하지 않고 알림", L.negated.length === 1 && L.matches.every(function (m) { return m.id !== "storage"; }));
+check("LLM: 상품 없는 종류는 noProduct로", L.noProduct.length === 1 && L.noProduct[0].id === "np_appliance");
+check("LLM: 해당 없음·모르는 id는 unknown (환각 id 무시)", L.unknown.length === 2);
+check("LLM: 이상한 입력에도 죽지 않음", Agent.interpretFromLLM(null).matches.length === 0 && Agent.interpretFromLLM([null, 3, { phrase: 5 }]).matches.length === 0);
+
+
 print(failures ? "\n" + failures + " FAILED" : "\nALL PASSED");
 if (failures) quit(1);

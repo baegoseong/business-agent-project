@@ -11,11 +11,14 @@
 정적 파일이라 빌드가 필요 없습니다. 데이터를 `fetch`로 읽으므로 웹 서버로 여세요.
 
 ```bash
-python3 -m http.server 8765   # http://localhost:8765/index.html
+python3 tools/dev_server.py   # http://localhost:8765/index.html (python3 -m http.server 8765 도 가능)
 python3 tools/validate_data.py
+python3 -I tools/test_server.py
 /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc tools/test_agent.js
 /System/Library/Frameworks/JavaScriptCore.framework/Versions/A/Helpers/jsc tools/eval_text.js
 ```
+
+**선택: AI 글 해석(로컬 실행 전용).** `.env.example`을 `.env`로 복사해 OpenRouter 키를 넣고 `dev_server.py`로 실행하면, 직접 쓴 글을 무료 모델로도 읽습니다. 키는 서버만 읽고(`.env`는 git에서 제외, 서버도 내주지 않음) 브라우저로 나가지 않습니다. 키가 없거나 배포 주소에서는 규칙 방식으로만 동작합니다.
 
 1. **방 정보**: 사진, 방 크기, 예산, 이미 있는 가구(모두 선택)
 2. **취향**: 방 분위기 사진(오늘의집 스타일 8개) 고르기, 아쉬운 점, 조건, 카드에 없는 고민 직접 쓰기
@@ -83,7 +86,7 @@ python3 tools/validate_data.py
 
 ## 알려진 한계
 
-- **직접 쓴 글은 LLM이 아니라 규칙과 글자 유사도로 해석**해서 돌려 말하기에 약합니다. 앞의 표가 근거입니다.
+- **기본(배포 주소 포함)에서 직접 쓴 글은 규칙과 글자 유사도로 해석**해서 돌려 말하기에 약합니다. 앞의 표가 근거입니다. AI 해석은 로컬 서버와 키가 있을 때만 켜지며, 무료 모델은 호출 한도(분당 20회, 하루 50회)가 작습니다.
 - 오늘의집 스타일 8개를 우리 취향 4가지(미니멀·모던·우드·따뜻한)로 **근사 환산**했고, 상품의 스타일은 상품명 키워드로 자동 분류해 부정확할 수 있습니다. 사진 속 가구와 상품은 연결되어 있지 않습니다.
 - 방 크기는 "바닥의 절반까지 가구를 둘 수 있다"고 가정하고, 보유 가구 크기는 일반적인 값입니다. 사진 합성에는 원근감이 없습니다.
 - 러그·소품은 후보가 적고, 커튼·빈백은 상품이 없어 빠졌습니다. 상품은 아마존 미국 상품입니다.

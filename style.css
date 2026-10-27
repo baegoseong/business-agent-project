@@ -101,6 +101,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .ask-buttons button.none { border-color: var(--line); color: var(--muted); }
 .interp-noproduct { background: #f1ecf7; border-left: 4px solid #8a6fb0; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; }
 .interp-negated { background: #f3f3f1; border-left: 4px solid #a8a79f; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; color: var(--muted); }
+.interp-llm { font-size: 13px; color: var(--muted, #6b6558); margin-bottom: 6px; }
 .interp-unknown { background: #fbf3e4; border-left: 4px solid var(--wood); border-radius: 8px; padding: 8px 12px; }
 
 /* ---- 3단계: 진단과 후보 */
