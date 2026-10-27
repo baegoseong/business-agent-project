@@ -126,7 +126,7 @@
   // 직접 쓴 글을 어떻게 이해했는지 바로 보여 준다. 애매한 문장은 "이런 뜻인가요?"라고 되묻고, 못 알아들은 문장과 우리 상품에 없는 종류는 숨기지 않고 알려 준다.
   function currentInterp() {
     var text = $("#freeText").value, llm = LLM.cached(text);
-    return llm ? Agent.interpretFromLLM(llm) : Agent.interpretText(text, { choices: state.choices });
+    return llm ? Agent.interpretFromLLM(llm, { choices: state.choices }) : Agent.interpretText(text, { choices: state.choices });
   }
 
   // 로컬 서버에 키가 있으면 글을 LLM으로도 읽는다. 호출 한도가 작아 입력을 멈춘 뒤 한 번만 부르고, 실패하면 규칙 방식 결과를 그대로 쓴다.

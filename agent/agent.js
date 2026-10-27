@@ -60,9 +60,9 @@ var Agent = (function () {
     { id: "underbed", kind: "need", meaning: "침대 밑 공간을 수납에 쓰고 싶어요", needs: ["수납 박스", "바구니"],
       re: /침대 ?(밑|아래|하부)/,
       examples: ["침대 밑에 이불을 넣어두고 싶어요", "침대 아래 빈 공간이 아까워요", "침대 하부를 창고처럼 쓰고 싶어요"] },
-    { id: "vertical", kind: "need", meaning: "벽·세로 공간을 쓰고 싶어요", needs: ["선반", "수납장"],
-      re: /벽에 ?(걸|달)|세로|높이를? ?활용|벽걸이|문 ?뒤|벽면|벽을 ?(활용|쓰|이용|사용)|벽 ?(이용|사용|활용)|위로 ?(쌓|올)|세워서|(걸|달) 수 있는|무타공|타공 ?없이/,
-      examples: ["바닥 말고 벽을 활용하고 싶어요", "높이 쌓아서 공간을 아끼고 싶어요", "벽에 달 수 있는 수납이 좋아요", "문 뒤 빈 공간을 쓰고 싶어요"] },
+    { id: "vertical", kind: "need", meaning: "공간을 알뜰하게(벽·세로 공간) 쓰고 싶어요", needs: ["선반", "수납장"],
+      re: /공간 ?(을 )?(잘 ?)?(활용|효율|알뜰)|벽에 ?(걸|달)|세로|높이를? ?활용|벽걸이|문 ?뒤|벽면|벽을 ?(활용|쓰|이용|사용)|벽 ?(이용|사용|활용)|위로 ?(쌓|올)|세워서|(걸|달) 수 있는|무타공|타공 ?없이/,
+      examples: ["공간활용을 잘 하고 싶어요", "바닥 말고 벽을 활용하고 싶어요", "높이 쌓아서 공간을 아끼고 싶어요", "벽에 달 수 있는 수납이 좋아요", "문 뒤 빈 공간을 쓰고 싶어요"] },
     { id: "partition", kind: "need", meaning: "공간을 나누고 싶어요", needs: ["선반"], overrides: ["study", "sleep", "seat"],
       re: /공간 ?(을 )?(분리|구분|나누)|(구분|분리|나누).{0,6}(공간|영역)|파티션|칸막이/,
       examples: ["잠자는 곳과 공부하는 곳을 나누고 싶어요", "방 한가운데를 구분해 주는 가구가 필요해요", "원룸을 두 공간으로 분리하고 싶어요"] },
@@ -115,6 +115,8 @@ var Agent = (function () {
     { id: "vintage", kind: "style", meaning: "빈티지·레트로 스타일을 원해요", styles: { "따뜻한": 3, "우드": 1 }, re: /빈티지|레트로|앤티크/, examples: ["옛날 감성의 방을 만들고 싶어요"] },
     { id: "lovely", kind: "style", meaning: "러블리·로맨틱 스타일을 원해요", styles: { "따뜻한": 3, "미니멀": 1 }, re: /러블리|로맨틱|핑크|파스텔/, examples: ["사랑스럽고 아기자기한 방이 좋아요"] },
     { id: "industrial", kind: "style", meaning: "인더스트리얼 스타일을 원해요", styles: { "모던": 3, "우드": 1 }, re: /인더스트리얼|공장|벽돌|철제|콘크리트/, examples: ["거칠고 투박한 느낌의 방을 원해요"] },
+    { id: "dark", kind: "style", meaning: "어둡고 차분한 분위기를 원해요", styles: { "모던": 3, "따뜻한": 1 }, overrides: ["light"],
+      re: /(어둡|어두운|다크|칙칙)\s?(한|게)?\s?(분위기|느낌|톤|색감|인테리어|스타일|컨셉|콘셉트)|다크 ?(모드|톤)/, examples: ["차분하고 어두운 톤으로 꾸미고 싶어요"] },
     { id: "french", kind: "style", meaning: "프렌치·프로방스 스타일을 원해요", styles: { "따뜻한": 3, "미니멀": 1 }, re: /프렌치|프로방스/, examples: ["프랑스 가정집 같은 분위기가 좋아요"] },
     { id: "nail", kind: "constraint", meaning: "벽에 못을 박기 어려워요", constraints: { noWall: true },
       re: /못.*(박|안|어렵|안 ?돼|싫|뚫|쓰기|치)|원상복구|복구|월세|보증금|깎일|물어 ?(줘|내)|(구멍|타공).*(안|못|싫|어렵|절대|뚫)|무타공|구멍 ?안|탈부착|퇴실|집주인|임대|흠집|흔적|스크래치|도배|벽지 ?(상|손상|훼손)/,
@@ -135,6 +137,7 @@ var Agent = (function () {
   INTENTS.forEach(function (it) { INTENT_BY_ID[it.id] = it; });
 
   // 부정: 필요한 것으로 읽으면 안 되는 문장("어둡지 않아요", "수납은 충분해요"). 조건(못 박기 어려움 등)과 취향에는 적용하지 않는다.
+  var STYLE_NEGATION = /싫|별로|말고|원하지 ?않|아니/;   // "어두운 분위기는 싫어요"처럼 취향을 거부하는 말
   var NEGATION = /(지|진) ?(않|못)|괜찮|충분|넉넉|필요 ?없|됐어|안 ?(어둡|어두|좁|부족)|아쉽지/;
   // 한 문장 안에서 뜻이 갈리는 연결 표현(…인데 / …지만 / …괜찮고)은 앞에서 끊는다
   var CLAUSE_BREAK = /(괜찮고|괜찮은데|괜찮지만|충분한데|충분하고|충분하지만|필요 ?없고|필요 ?없지만|필요 ?없는데|인데|한데|은데|는데|지만|그런데|면서|으며|이며)/g;
@@ -201,8 +204,8 @@ var Agent = (function () {
       var negated = NEGATION.test(clause);
       var accepted = 0;
       hits.forEach(function (it) {
-        var affectedByNegation = it.kind === "need" || it.kind === "noProduct";
-        if (negated && affectedByNegation) { out.negated.push({ phrase: clause, meaning: it.meaning }); return; }
+        var rejected = (negated && (it.kind === "need" || it.kind === "noProduct")) || (it.kind === "style" && STYLE_NEGATION.test(clause));
+        if (rejected) { out.negated.push({ phrase: clause, meaning: it.meaning }); return; }
         if (seen[it.id]) { accepted++; return; }
         seen[it.id] = true; accepted++;
         if (it.kind === "noProduct") out.noProduct.push({ id: it.id, phrase: clause, meaning: it.meaning });
@@ -240,14 +243,15 @@ var Agent = (function () {
   }
 
   // clauses: [{ phrase, intents: [의도 id], negated: bool }]. 목록에 없는 id는 버리고, 부정은 규칙 방식과 같게 need/noProduct에만 적용한다.
-  function interpretFromLLM(clauses) {
-    var out = { matches: [], noProduct: [], negated: [], uncertain: [], unknown: [] }, seen = {};
+  // 모델이 아무것도 고르지 못한 절은 버리지 않고 규칙 방식(키워드·유사도·되묻기)으로 한 번 더 읽는다.
+  function interpretFromLLM(clauses, opts) {
+    var out = { matches: [], noProduct: [], negated: [], uncertain: [], unknown: [] }, seen = {}, rest = [];
     (Array.isArray(clauses) ? clauses : []).forEach(function (c) {
       if (!c || typeof c.phrase !== "string") return;
       var phrase = c.phrase.trim().slice(0, 120);
       if (!phrase) return;
       var ids = (Array.isArray(c.intents) ? c.intents : []).filter(function (id) { return typeof id === "string" && INTENT_BY_ID[id]; });
-      if (!ids.length) { out.unknown.push(phrase); return; }
+      if (!ids.length) { rest.push(phrase); return; }
       ids.forEach(function (id) {
         var it = INTENT_BY_ID[id];
         if (c.negated === true && (it.kind === "need" || it.kind === "noProduct")) { out.negated.push({ phrase: phrase, meaning: it.meaning }); return; }
@@ -256,6 +260,12 @@ var Agent = (function () {
         if (it.kind === "noProduct") out.noProduct.push({ id: id, phrase: phrase, meaning: it.meaning });
         else out.matches.push(matchOf(it, phrase, "llm", 1));
       });
+    });
+    rest.forEach(function (phrase) {
+      var r = interpretText(phrase, opts);
+      r.matches.forEach(function (m) { if (!seen[m.id]) { seen[m.id] = true; out.matches.push(m); } });
+      r.noProduct.forEach(function (n) { if (!seen[n.id]) { seen[n.id] = true; out.noProduct.push(n); } });
+      out.negated = out.negated.concat(r.negated); out.uncertain = out.uncertain.concat(r.uncertain); out.unknown = out.unknown.concat(r.unknown);
     });
     return out;
   }

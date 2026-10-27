@@ -289,6 +289,12 @@ check("LLM: 의도 id를 규칙 방식과 같은 모양으로 변환", L.matches
 check("LLM: 부정은 반영하지 않고 알림", L.negated.length === 1 && L.matches.every(function (m) { return m.id !== "storage"; }));
 check("LLM: 상품 없는 종류는 noProduct로", L.noProduct.length === 1 && L.noProduct[0].id === "np_appliance");
 check("LLM: 해당 없음·모르는 id는 unknown (환각 id 무시)", L.unknown.length === 2);
+var L2 = Agent.interpretFromLLM([{ phrase: "책상 위가 어두워요", intents: [], negated: false }]);
+var dk = Agent.interpretText("어두운 분위기를 원해요");
+check("글 해석: '어두운 분위기를 원해요'는 조명이 아니라 취향", dk.matches.length === 1 && dk.matches[0].id === "dark" && dk.matches[0].needs.length === 0);
+check("글 해석: '방이 어두워요'는 여전히 조명 필요", Agent.interpretText("방이 어두워요").matches[0].id === "light");
+check("글 해석: 취향을 거부하는 말은 반영하지 않음", Agent.interpretText("어두운 분위기는 싫어요").matches.length === 0 && Agent.interpretText("어두운 분위기는 싫어요").negated.length === 1);
+check("LLM: 모델이 못 고른 절은 규칙 방식으로 다시 읽음", L2.matches.length === 1 && L2.matches[0].id === "light" && L2.matches[0].via === "keyword");
 check("LLM: 이상한 입력에도 죽지 않음", Agent.interpretFromLLM(null).matches.length === 0 && Agent.interpretFromLLM([null, 3, { phrase: 5 }]).matches.length === 0);
 
 
