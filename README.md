@@ -32,12 +32,13 @@ python3 -I tools/test_server.py
 | `agent/agent.js` | 글·사진 해석, 취향 진단, 점수화, 방 크기 반영, 후보 목록, 예산 안 자동 선택, 판단 기록 |
 | `app.js` | 4단계 화면 흐름, 담기와 예산 계산, 되묻기 화면 |
 | `overlay.js` | 사진 위 배치(Canvas, 드래그, 핸들) |
-| `data/items.json` | 상품 153개, 22개 카테고리 |
-| `tools/test_agent.js` | 에이전트 테스트 |
+| `tools/test_agent.js` | 에이전트 테스트(120개 검사) |
+| `tools/eval_text.js` | 글 해석 정확도 측정 |
 
 ## 데이터와 출처
 
-상품은 공개 데이터셋 **Amazon Berkeley Objects(CC BY 4.0, Amazon.com)** 에서 가져왔고 이미지는 흰 배경을 지운 투명 WebP입니다. **ABO에는 가격이 없어 가격은 추정값**이며 화면에 그렇게 표시합니다. 방 분위기 사진 8장은 **Pexels**(Pexels License) 사진이고 작가는 화면과 `data/moods.json`에 있습니다. 만든 스크립트는 `tools/abo_*.py`입니다.
+상품은 공개 데이터셋 **Amazon Berkeley Objects(CC BY 4.0, Amazon.com)** 에서 가져왔고 이미지는 흰 배경을 지운 투명 WebP입니다. **ABO에는 가격이 없어 가격은 추정값**이며 화면에 그렇게 표시합니다. 방 분위기 사진 8장은 **Pexels**(Pexels License) 사진이고 작가는 화면과 `data/moods.json`에 있습니다. 
+만든 과정: ABO 목록에서 자취방에 맞는 후보 166개를 골라 한글로 옮기고, 원본 이미지의 흰 배경을 지워 투명 WebP로 바꿨습니다(불량 13개 제외, 153개 사용). 설치 방식·스타일·저가 대체 관계는 이름과 카테고리 규칙으로 붙였습니다. 수집 스크립트와 원본은 제출물에서 뺐고 git 기록에서 볼 수 있습니다. 자세한 항목은 `docs/data-schema.md`, 검사는 `validate_data.py`입니다.
 
 ## 작업 과정
 
