@@ -22,7 +22,7 @@
     items: [], photoURL: null,
     moods: [], picks: [],          // 방 분위기 사진 8개와 사용자가 고른 분위기 id
     interp: { matches: [], noProduct: [], negated: [], uncertain: [], unknown: [] },
-    choices: {}, asking: [],       // 되묻기에 사용자가 답한 것(문장 -> 의도)과 지금 되묻고 있는 문장들
+    choices: {}, askGroup: {}, unknownAsk: [], asking: [],       // 되묻기에 사용자가 답한 것(문장 -> 의도)과 지금 되묻고 있는 문장들
     diagnosis: null, owned: [], room: null, budget: 0,
     groups: [],      // Agent.suggest 결과: 카테고리별 후보 목록
     current: [],     // 카테고리마다 지금 보여 주는 후보의 위치
@@ -163,23 +163,38 @@
     if (r.negated.length) {
       html += '<div class="interp-negated">부정으로 이해해서 반영하지 않았어요: ' + r.negated.map(function (n) { return "“" + esc(n.phrase) + "”"; }).join(", ") + "</div>";
     }
-    if (r.unknown.length) {
-      html += '<div class="interp-unknown">반영하지 못한 표현: ' + r.unknown.map(function (u) { return "“" + esc(u) + "”"; }).join(", ") +
-        (LLM.cached($("#freeText").value) ? "" : '<div class="hint">글을 이해하는 방법에는 한계가 있어요(정해 둔 단어와 비슷한 표현만 알아봐요). 위의 \'아쉬운 점\'에서 골라 주시거나, 다른 말로 풀어 쓰면 반영될 수 있어요.</div>') + "</div>";
+    state.unknownAsk = r.unknown.filter(function (u) { return state.choices[u] !== "none"; });
+    state.unknownAsk.forEach(function (u, i) {
+      var gid = state.askGroup[u], groups = Agent.askGroups(), g = groups.filter(function (x) { return x.id === gid; })[0];
+      html += '<div class="interp-ask interp-unk"><div>“' + esc(u) + '” — ' + (g ? "이 중에 가까운 게 있나요?" : "못 알아들었어요. 어떤 쪽에 가까운가요?") + '</div><div class="ask-buttons">' +
+        (g ? g.intents.map(function (it) { return '<button type="button" data-unk="' + i + '" data-intent="' + esc(it.id) + '">' + esc(it.meaning) + "</button>"; }).join("") +
+              '<button type="button" class="none" data-unk="' + i + '" data-group="">뒤로</button>'
+           : groups.map(function (x) { return '<button type="button" data-unk="' + i + '" data-group="' + esc(x.id) + '">' + esc(x.label) + "</button>"; }).join("")) +
+        '<button type="button" class="none" data-unk="' + i + '" data-intent="none">해당 없음</button></div></div>';
+    });
+    if (r.unknown.length && !state.unknownAsk.length) {
+      html += '<div class="interp-unknown">반영하지 않은 표현: ' + r.unknown.map(function (u) { return "“" + esc(u) + "”"; }).join(", ") + "</div>";
     }
     $("#interpret").innerHTML = html;
   }
 
   function bindInterpretation() {
     $("#freeText").addEventListener("input", function () {
-      state.choices = {}; renderInterpretation();
+      state.choices = {}; state.askGroup = {}; renderInterpretation();
       clearTimeout(llmTimer);
       var t = $("#freeText").value;
       if (LLM.isAvailable() && t.trim().length >= 2 && !LLM.settled(t)) llmTimer = setTimeout(function () { askLLM(t); }, 1200);
     });
     $("#interpret").addEventListener("click", function (e) {
       var b = e.target.closest("button");
-      if (!b || b.dataset.ask === undefined) return;
+      if (!b) return;
+      if (b.dataset.unk !== undefined) {   // 아무것도 못 알아들은 문장: 갈래 -> 항목 두 단계
+        var phrase = state.unknownAsk[+b.dataset.unk];
+        if (b.dataset.intent) state.choices[phrase] = b.dataset.intent; else state.askGroup[phrase] = b.dataset.group;
+        renderInterpretation();
+        return;
+      }
+      if (b.dataset.ask === undefined) return;
       state.choices[state.asking[+b.dataset.ask]] = b.dataset.intent;
       renderInterpretation();
     });

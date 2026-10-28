@@ -297,6 +297,19 @@ check("글 해석: 취향을 거부하는 말은 반영하지 않음", Agent.int
 check("LLM: 모델이 못 고른 절은 규칙 방식으로 다시 읽음", L2.matches.length === 1 && L2.matches[0].id === "light" && L2.matches[0].via === "keyword");
 check("LLM: 이상한 입력에도 죽지 않음", Agent.interpretFromLLM(null).matches.length === 0 && Agent.interpretFromLLM([null, 3, { phrase: 5 }]).matches.length === 0);
 
+// ---- 아무것도 못 알아들은 문장을 갈래로 되묻기
+var AG = Agent.askGroups(), catIds = cat.map(function (c) { return c.id; });
+check("되묻기: 갈래가 5개이고 항목은 모두 의도 목록에 있음", AG.length === 5 && AG.every(function (g) { return g.intents.length && g.intents.every(function (it) { return catIds.indexOf(it.id) >= 0; }); }));
+check("되묻기: 상품이 없는 종류(noProduct)는 고르게 하지 않음", AG.every(function (g) { return g.intents.every(function (it) { return it.id.indexOf("np_") !== 0; }); }));
+var unkText = "오늘 하루 정말 길었어";
+var U0 = Agent.interpretText(unkText);
+check("되묻기: 키워드·유사어 없는 문장은 unknown", U0.unknown.indexOf(unkText) >= 0 && U0.matches.length === 0);
+var ch = {}; ch[unkText] = "plant";
+var U1 = Agent.interpretText(unkText, { choices: ch });
+check("되묻기: 갈래에서 고르면 '직접 확인'으로 반영", U1.matches.length === 1 && U1.matches[0].id === "plant" && U1.matches[0].via === "confirmed" && U1.unknown.length === 0);
+ch[unkText] = "none";
+check("되묻기: 해당 없음이면 반영하지 않고 unknown 유지", Agent.interpretText(unkText, { choices: ch }).matches.length === 0);
+
 
 print(failures ? "\n" + failures + " FAILED" : "\nALL PASSED");
 if (failures) quit(1);

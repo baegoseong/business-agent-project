@@ -242,6 +242,21 @@ var Agent = (function () {
     return INTENTS.map(function (it) { return { id: it.id, kind: it.kind, meaning: it.meaning }; });
   }
 
+  // 아무것도 못 알아들은 문장을 되물을 때 쓰는 갈래. 1단계에서 갈래를 고르고 2단계에서 그 안의 항목을 고른다(상품이 없는 종류는 제외).
+  var ASK_GROUPS = [
+    { id: "space", label: "수납·공간", ids: ["storage", "shelf", "underbed", "vertical", "shoes", "partition"] },
+    { id: "living", label: "조명·생활 가구", ids: ["light", "study", "seat", "sleep", "floor", "table"] },
+    { id: "decor", label: "소품·장식", ids: ["empty", "plant", "mirror", "clock", "cushion"] },
+    { id: "style", label: "분위기·스타일", kind: "style" },
+    { id: "constraint", label: "조건(못·좁음·가격)", kind: "constraint" }
+  ];
+  function askGroups() {
+    return ASK_GROUPS.map(function (g) {
+      var list = INTENTS.filter(function (it) { return g.kind ? it.kind === g.kind : g.ids.indexOf(it.id) >= 0; });
+      return { id: g.id, label: g.label, intents: list.map(function (it) { return { id: it.id, meaning: it.meaning }; }) };
+    });
+  }
+
   // clauses: [{ phrase, intents: [의도 id], negated: bool }]. 목록에 없는 id는 버리고, 부정은 규칙 방식과 같게 need/noProduct에만 적용한다.
   // 모델이 아무것도 고르지 못한 절은 버리지 않고 규칙 방식(키워드·유사도·되묻기)으로 한 번 더 읽는다.
   function interpretFromLLM(clauses, opts) {
@@ -598,7 +613,7 @@ var Agent = (function () {
     STYLES: STYLES, FLOOR_CATS: FLOOR_CATS,
     styleOptionsFromMoods: styleOptionsFromMoods,
     interpretText: interpretText, optionsFromText: optionsFromText,
-    intentCatalog: intentCatalog, interpretFromLLM: interpretFromLLM,
+    intentCatalog: intentCatalog, askGroups: askGroups, interpretFromLLM: interpretFromLLM,
     diagnose: diagnose, footprint: footprint, floorBudget: floorBudget, fitOf: fitOf,
     suggest: suggest, recommend: recommend, constraintNotes: constraintNotes
   };
