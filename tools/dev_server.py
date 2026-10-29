@@ -6,7 +6,7 @@ API 키는 환경변수 또는 .env 파일(git 제외)에서 서버만 읽고 �
 화면은 규칙 방식으로만 동작한다.
 
 실행: python3 tools/dev_server.py [포트=8765]
-.env 예:  OPENROUTER_API_KEY=...   (선택) OPENROUTER_MODEL=google/gemma-4-31b-it:free
+.env 예:  OPENROUTER_API_KEY=...   (선택) OPENROUTER_MODEL=nvidia/nemotron-3.5-super-vl:free
 """
 import http.server
 import json
@@ -18,7 +18,7 @@ import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 URL = "https://openrouter.ai/api/v1/chat/completions"
-DEFAULT_MODEL = "google/gemma-4-31b-it:free"
+DEFAULT_MODEL = "nvidia/nemotron-3.5-super-vl:free"
 MAX_TEXT = 400
 
 
